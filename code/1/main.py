@@ -1,6 +1,6 @@
 import utest
 
 print("Loading modules..")
-import sid
+import sid, megha
 
 utest.oks()
