@@ -22,6 +22,16 @@ that that example is in CoffeeScript. For the equivalent Python code, see
 
 ## Notes
 
+### Programming Environment:
+- (Siddharth) OS: Ubuntu MATE 16.04
+	- Python version: 2.7.12
+	- Text Editor: [Sublime Text 3](https://www.sublimetext.com/3)
+		- Supports Python syntax highlighting
+		- Integrated execution(build) window
+		- Automatic Tab indentation, auto complete, convert white space to tabs etc
+		- Many more addon packages via [Package Control](https://packagecontrol.io/)
+	- pip version: 8.1.2
+
 ### Video tl;dr:
 - It's vital to get feedback. The shorter the feedback loop, the better.
 - Coffeescript has `--watch` option that evaulates file every time it's saved. Acts as Self evaluating feedback loop.
