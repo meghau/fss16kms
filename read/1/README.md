@@ -20,7 +20,7 @@ Visualization is done by graphing the Pareto program surface in three dimensions
 
 ## iii3. RELATED WORK
 
-The paper proposes an approach based on Search based optimisation techniques and leverages previous work done in fields such as Genetic Programming and Evolutionary approaches to Software Engineering problems. Recent works include evolving versions of Pseudo random generator by White, and code migration of a kernel component of `gzip` UNIX utility, to GPU(an entirely different platform) by a GP(Genetic Programming) engine. In software companies like Google, Microsoft etc, GP engines have recently been used for Bug detection and fixing These works lay the foundation for GISMOE approach. GP
+The paper proposes an approach based on Search based optimisation techniques and leverages previous work done in fields such as Genetic Programming and Evolutionary approaches to Software Engineering problems. Recent works include evolving versions of Pseudo random generator by White, and code migration of a kernel component of `gzip` UNIX utility, to GPU(an entirely different platform) by a GP(Genetic Programming) engine. In software companies like Google, Microsoft etc, GP engines have recently been used for Bug detection and fixing. These works lay the foundation for GISMOE approach.  
 
 ## iii4. FUTURE WORK
 
