@@ -1,4 +1,4 @@
-
+# Weekly Readings
 + By _summarize parts_ we mean write 250 to 500 words  on text:
     1. Starting with  a clear reference to the paper.
       + e.g. Tim Menzies, Burak Turhan, Ayse Bener, Gregory Gay, Bojan Cukic, and Yue Jiang. 2008.
