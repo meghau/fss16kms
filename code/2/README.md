@@ -1,4 +1,4 @@
-# Homework2
+# Homework 2
 ## Introductory Python
 
 Complete Think Python Exercises 3.1,3.2,3.3,3.4,3.5 and 4.2,4.3
@@ -42,6 +42,8 @@ Complete Think Python Exercises 3.1,3.2,3.3,3.4,3.5 and 4.2,4.3
 <https://github.com/meghau/fss16kms/blob/master/code/2/think4/think4.3.py> 
 
 ![](https://github.com/meghau/fss16kms/blob/master/code/2/think4/_3.png)
+
+## Review 2
 
 ## Active shooter Exercise
 

@@ -7,10 +7,11 @@
 
 ## Links:
 - Week 1
-    + [Review]()
-    + [Homework]()
-    + [Reading Assignment]()
+    + [Review-0](https://github.com/meghau/fss16kms/tree/master/code/1#review-0)
+    + [Review-1](https://github.com/meghau/fss16kms/tree/master/code/1#review-1) 
+    + [Homework](https://github.com/meghau/fss16kms/tree/master/code/1#homework)
+    + [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/1/README.md)
 - Week 2
-    + [Review-2]()
-    + [Homework]()
+    + [Review-2](https://github.com/meghau/fss16kms/tree/master/code/2#review-2)
+    + [Homework](https://github.com/meghau/fss16kms/tree/master/code/2#homework-2)
     + [Reading Assignment]()
