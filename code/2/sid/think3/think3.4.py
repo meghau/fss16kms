@@ -1,5 +1,5 @@
 # Exercise 3.4
-
+#Think Python
 # part 1
 def do_twice(f):
 	f()

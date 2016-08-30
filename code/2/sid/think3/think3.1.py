@@ -1,4 +1,4 @@
-# Think like a Computer Scientist
+# Think Python
 ## Exercise 3.1
 
 repeat_lyrics()
