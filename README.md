@@ -15,3 +15,4 @@
 + [Review-2](https://github.com/meghau/fss16kms/blob/master/review/review2.md)
 + [Homework](https://github.com/meghau/fss16kms/tree/master/code/2#homework-2)
 + [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/2/README.md)
++ [Active Shooter Exercise](https://github.com/meghau/fss16kms/blob/master/etc/README.md)
