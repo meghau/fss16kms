@@ -43,8 +43,6 @@ Complete Think Python Exercises 3.1,3.2,3.3,3.4,3.5 and 4.2,4.3
 
 ![](https://github.com/meghau/fss16kms/blob/master/code/2/think4/_3.png)
 
-## Review 2
-
 ## Active shooter Exercise
 
 ### 2 things not to do in an active shooter event:
