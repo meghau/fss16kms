@@ -3,6 +3,7 @@
 
 ###[Review-0](https://github.com/meghau/fss16kms/blob/master/review/review0.md)
 ###[Review-1](https://github.com/meghau/fss16kms/blob/master/review/review0.md)
+###[Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/1/README.md)
 
 ## Homework 
 

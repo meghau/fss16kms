@@ -1,6 +1,7 @@
 # Homework 2
 
 ### [Review-2](https://github.com/meghau/fss16kms/blob/master/review/review2.md)
+###[Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/2/README.md)
 
 ## Introductory Python
 
