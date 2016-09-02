@@ -1,4 +1,4 @@
-## S. Sidiroglou-Douskos, S. Misailovic, H. Homann, and M. C. Rinard. Managing performance vs. accuracy trade-offs with loop perforation. In T. Gyiḿothy and A. Zeller, editors, 19th ACM Symposium on the Foundations of Software Engineering (FSE-19), pages 124–134, Szeged, Hungary, Sept. 2011. ACM
+## S. Sidiroglou Douskos, S. Misailovic, H. Homann, and M. C. Rinard. Managing performance vs. accuracy trade-offs with loop perforation. In T. Gyiḿothy and A. Zeller, editors, 19th ACM Symposium on the Foundations of Software Engineering (FSE-19), pages 124–134, Szeged, Hungary, Sept. 2011. ACM
 
 ## Keywords:
 
@@ -34,9 +34,9 @@ In the past, there have been several efforts to trade accuracy with different fa
 
 ## iii5. NEW RESULTS
 The results presented in this paper are better compared to older ones due to the following reasons:
-1. Developers do not have to provide multiple implementations for the same functionality. The trade-off space is automatically explored to find alternatives.
-2. There are several global computational patterns defined in the paper which can be used to identify parts of an applications where loop perforation can be applied.
-3. Loop perforation, unlike autotuners (mentioned in RELATED WORK), does not explore alternatives with exact same accuracy, but with accuracy within a particular bound.
+1. Developers do not have to provide multiple implementations for the same functionality. The trade-off space is automatically explored to find alternatives.  
+2. There are several global computational patterns defined in the paper which can be used to identify parts of an applications where loop perforation can be applied.  
+3. Loop perforation, unlike autotuners (mentioned in RELATED WORK), does not explore alternatives with exact same accuracy, but with accuracy within a particular bound.  
 
 ## PROPOSED IMPROVEMENTS: 
 
