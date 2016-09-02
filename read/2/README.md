@@ -33,6 +33,6 @@ Paper: [Managing performance vs. accuracy trade-offs with loop perforation.](htt
 
 4. *Proposed Improvements*
 
-    - 1. The analysis presented is focused on local computations and do not address the effect of loop perforation on global end-to-end application performance and accuracy. How would they affect a large system?
-    - 2. The experimental results in the paper use interleaving perforation, it would be interesting to see the performance comparison with random perforations(which randomly skips loop iteration).
+    1. The analysis presented is focused on local computations and do not address the effect of loop perforation on global end-to-end application performance and accuracy. How would they affect a large system?
+    2. The experimental results in the paper use interleaving perforation, it would be interesting to see the performance comparison with random perforations(which randomly skips loop iteration).
 
