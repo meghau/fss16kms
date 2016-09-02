@@ -24,11 +24,9 @@ Paper: [Managing performance vs. accuracy trade-offs with loop perforation.](htt
 
     2. **Informative Visualization**: Visualization is done by plotting graphs for each perforation where the x coordinate is the percentage of accuracy loss and the y coordinate is the mean speedup of the perforation. The graph is called performance vs accuracy trade-off space.
 
-    3. **Hypothesis**: The hypothesis is that loop perforation would help increase the performance of computations by at least a factor of 2 while maintaining acceptable accuracy.
+    3. **Related Work**: In the past, there have been several efforts to trade accuracy with different factors like performance, robustness, energy consumption, etc. Among these efforts, one of them explored task skipping (which is comparable to loop perforation) to reduce resource usage when maintaining acceptable accuracy. In another effort, programmers had to provide several implementations for a specific functionality and the implementations represented different points on the performance-accuracy space. An appropriate implementation would be chosen according to the problem at hand. Yet another work called Autotuners involved exploration of alternatives that had the exact same accuracy.
 
-    4. **Related Work**: In the past, there have been several efforts to trade accuracy with different factors like performance, robustness, energy consumption, etc. Among these efforts, one of them explored task skipping (which is comparable to loop perforation) to reduce resource usage when maintaining acceptable accuracy. In another effort, programmers had to provide several implementations for a specific functionality and the implementations represented different points on the performance-accuracy space. An appropriate implementation would be chosen according to the problem at hand. Yet another work called Autotuners involved exploration of alternatives that had the exact same accuracy.
-
-    5. **New Results**: The results presented in this paper are better  compared to older ones due to the following reasons:
+    4. **New Results**: The results presented in this paper are better  compared to older ones due to the following reasons:
         1. Developers do not have to provide multiple implementations for the same functionality. The trade-off space is automatically explored to find alternatives.  
         2. There are several global computational patterns defined in the paper which can be used to identify parts of an applications where loop perforation can be applied.  
         3. Loop perforation, unlike autotuners (mentioned in RELATED WORK), does not explore alternatives with exact same accuracy, but with accuracy within a particular bound.  
