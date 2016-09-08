@@ -9,9 +9,9 @@ if len(sys.argv) != 2:
 def has_duplicates(lst):
     count = { }
     for e in lst:
-        count[e] = count[e] + 1 if e in count else 1
-        if count[e] > 1:
+        if e in count:
             return True
+        count[e] = 1
     return False
     
 def generate_birthday_list():
@@ -21,7 +21,7 @@ def generate_birthday_list():
 def perform_experiment():
     return has_duplicates(generate_birthday_list())
     
-def calculate_probabilty(num_trials):
+def calculate_probabilty():
     count = 0
     for x in xrange(num_trials):
         if perform_experiment():
@@ -31,6 +31,6 @@ def calculate_probabilty(num_trials):
 try:
     num_trials = int(sys.argv[1])
     print("Number of trials: %d" % num_trials)
-    print("Probability: %f" % calculate_probabilty(num_trials))
-except:
+    print("Probability: %f" % calculate_probabilty())
+except ValueError as e:
     print("The argument <number-of-trials> is not a valid integer.")
