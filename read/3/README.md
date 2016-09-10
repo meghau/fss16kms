@@ -37,10 +37,10 @@ Paper: [A genetic programming approach to automated software repair.](https://dl
     [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/2/README.md) cites automated program repair papers for using Genetic Programming  in non-trivial Bug fixing. This paper lays the groundwork for many things GISMOE challenge talks about.
 
 6. *References*
-- [1] http://web.cse.ohio-state.edu/software/2231/web-sw2/extras/slides/21.Abstract-Syntax-Trees.pdf
-- [2] https://en.wikipedia.org/wiki/Delta_Debugging
-- [3] https://en.wikipedia.org/wiki/Fitness_function
-- [4] https://en.wikipedia.org/wiki/Genetic_operator
+    - [1] http://web.cse.ohio-state.edu/software/2231/web-sw2/extras/slides/21.Abstract-Syntax-Trees.pdf
+    - [2] https://en.wikipedia.org/wiki/Delta_Debugging
+    - [3] https://en.wikipedia.org/wiki/Fitness_function
+    - [4] https://en.wikipedia.org/wiki/Genetic_operator
 
 
 
