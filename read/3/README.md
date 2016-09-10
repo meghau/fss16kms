@@ -34,7 +34,7 @@ Paper: [A genetic programming approach to automated software repair.](https://dl
     
 5. *Connection to Previous papers*
 
-    [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/2/README.md) cites automated program repair papers for using Genetic Programming  in non-trivial Bug fixing. This paper lays the groundwork for many things GISMOE challenge talks about.
+    [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/1/README.md) cites automated program repair papers for using Genetic Programming  in non-trivial Bug fixing. This paper lays the groundwork for many things GISMOE challenge talks about.
 
 6. *References*
     - [1] http://web.cse.ohio-state.edu/software/2231/web-sw2/extras/slides/21.Abstract-Syntax-Trees.pdf
