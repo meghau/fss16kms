@@ -4,6 +4,7 @@
 ## Team:   
 - [Siddharth Sharma](https://github.com/thegreyd) 
 - [Megha Umesha](https://github.com/meghau)
+- [Greg Timmons](https://github.com/gbtimmon)
 
 ## Week 1
 + [Review-0](https://github.com/meghau/fss16kms/blob/master/review/review0.md)
