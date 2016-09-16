@@ -60,4 +60,4 @@ def baseline():
 
 if __name__ == '__main__':
   baseline()
-  sim_anneal(500,0.001)
+  sim_anneal(500,0.000001)
