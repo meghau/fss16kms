@@ -11,8 +11,6 @@ from sys    import float_info, stdout, argv
 from math   import e
 from random import Random
 
-   
-
 def schaffer( x ) : 
     return (x**2, (x-2)**2)
 
@@ -30,7 +28,7 @@ class simulated_annealer() :
            output       = True,
            drunk_metric = drunkeness,
            max_iter     = 5000, 
-           min_energy   = 10e-6,
+           min_energy   = 1e-6,
            valid_range  = (-10e6, 10e6),
            seed         = None,
            bline_iter   = 200
@@ -80,12 +78,6 @@ class simulated_annealer() :
         if self.terminated : 
             raise ValueError("annealer has terminated")
 
-        if self.iter > self.max_iter : 
-            self.stop()
-
-        if self.cur_energy < self.min_energy : 
-            self.stop()
-       
         new_state  = self.random.randint( *self.range )
         new_energy = self.energy( new_state )
 
@@ -93,6 +85,9 @@ class simulated_annealer() :
             self.bst_state  = new_state
             self.bst_energy = new_energy
             self.say("!")
+
+        if self.bst_energy < self.min_energy : 
+            self.stop()
 
         if( new_energy < self.cur_energy ) : 
             self.cur_state  = new_state
@@ -109,10 +104,15 @@ class simulated_annealer() :
 
         self.say(".")
        
-        self.iter += 1
-
         if( self.iter % self.line_size == 0 ) :
             self.say( "\n[%04d] %12.10f : " % ( self.iter, self.bst_energy ) ) 
+
+        self.iter += 1
+
+        if self.iter > self.max_iter : 
+            self.stop()
+
+       
 
     def go( self ) :
         if self.terminated :
@@ -129,12 +129,16 @@ class simulated_annealer() :
 if __name__ == '__main__' :
     print(argv)
     if( len(argv) > 1 ) : 
-        sa = simulated_annealer( seed=argv[1]).go()
+        sa = simulated_annealer( seed=argv[1], min_energy=1e-9, max_iter=9000 ).go()
     else :
-        sa = simulated_annealer().go()
+        sa = simulated_annealer( min_energy=1e-7, max_iter=2000 ).go()
        
     print()
     print("e : ", sa.bst_energy)
     print("s : ", sa.bst_state)
+    print("max iter : ", sa.max_iter)
+    print("min engy : ", sa.min_energy)
+    print("iters    : ", sa.iter)
 
+   
 
