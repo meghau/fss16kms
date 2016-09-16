@@ -6,6 +6,6 @@
 
 Implement a Simulated Annealer
 
-<https://github.com/meghau/fss16kms/blob/master/code/4/gbt/SA.py>
+<https://github.com/meghau/fss16kms/blob/master/code/4/gbt/sa.py>
 
-![](https://github.com/meghau/fss16kms/blob/master/code/4/screenshots/SA_output.png)
+![](https://github.com/meghau/fss16kms/blob/master/code/4/screenshots/SA_output.PNG)
