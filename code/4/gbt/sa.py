@@ -6,10 +6,12 @@
 #      s <- snew
 #Output final state
 
-from __future__ import division
-from sys    import float_info 
+from __future__ import division, print_function
+from sys    import float_info, stdout, argv
 from math   import e
 from random import Random
+
+   
 
 def schaffer( x ) : 
     return (x**2, (x-2)**2)
@@ -17,7 +19,7 @@ def schaffer( x ) :
 def drunkeness( old, new, k, kmax, rnd) : 
     top  = old - new
     bot  = k / kmax
-    p    = e**(top/bot)
+    p    = e**(top/(bot + 10e-7))
     rand = rnd.random()
     return p < rand 
 
@@ -25,14 +27,16 @@ class simulated_annealer() :
     def __init__( 
            self, 
            metric       = schaffer, 
+           output       = True,
            drunk_metric = drunkeness,
            max_iter     = 5000, 
            min_energy   = 10e-6,
            valid_range  = (-10e6, 10e6),
-           seed         = 1288,
+           seed         = None,
            bline_iter   = 200
     ): 
 
+        self.output     = output
         self.random     = Random()            # seeded random. 
         self.metric     = metric              # Function for determining energy
         self.isDrunk    = drunk_metric        # Function for determining if I should go worse
@@ -45,7 +49,8 @@ class simulated_annealer() :
         self.omax       = 0 
         self.line_size  = 25
 
-        self.random.seed(seed)
+        if( seed is not None ) :
+            self.random.seed( int(seed) )
 
         for _ in xrange( bline_iter ) : 
             x = sum( self.metric( self.random.randint( *self.range ) ) ) 
@@ -59,6 +64,11 @@ class simulated_annealer() :
 
     def stop( self ) : 
         self.terminated = True
+
+    def say(self, *lst):
+        if( self.output == False ) : return
+        print(*lst, end="")
+        stdout.flush()
 
     def energy( self, x ) : 
         return (
@@ -82,12 +92,12 @@ class simulated_annealer() :
         if( new_energy < self.bst_energy ):
             self.bst_state  = new_state
             self.bst_energy = new_energy
-            print "!",
+            self.say("!")
 
         if( new_energy < self.cur_energy ) : 
             self.cur_state  = new_state
             self.cur_energy = new_energy
-            print "+",
+            self.say("+")
 
         elif( 
             self.isDrunk( self.cur_energy, new_energy, 
@@ -95,31 +105,36 @@ class simulated_annealer() :
         ) :
             self.cur_state  = new_state
             self.cur_energy = new_energy
-            print "?",
+            self.say("?")
 
-        print ".",
+        self.say(".")
        
         self.iter += 1
 
         if( self.iter % self.line_size == 0 ) :
-            print "\n[%04d] %12.10f : " % ( self.iter, self.bst_energy ) , 
+            self.say( "\n[%04d] %12.10f : " % ( self.iter, self.bst_energy ) ) 
 
     def go( self ) :
         if self.terminated :
             raise ValueError("annealer has terminated")
 
-        print "\n[%04d] %12.10f : " % ( self.iter, self.bst_energy ),
+        self.say("\n[%04d] %12.10f : " % ( self.iter, self.bst_energy ))
         while ( not self.terminated ) :
             self.step()
               
-        print ""
+        self.say("\n")
   
         return self
 
 if __name__ == '__main__' :
-    sa = simulated_annealer().go()
-    print ""          
-    print "e : " + str(sa.bst_energy)
-    print "s : " + str(sa.bst_state)
+    print(argv)
+    if( len(argv) > 1 ) : 
+        sa = simulated_annealer( seed=argv[1]).go()
+    else :
+        sa = simulated_annealer().go()
+       
+    print()
+    print("e : ", sa.bst_energy)
+    print("s : ", sa.bst_state)
 
 
