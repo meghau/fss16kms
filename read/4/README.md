@@ -28,7 +28,7 @@ Paper: [Multi-objective improvement of software using co-evolution and smart see
     4. **Future Work**: Future work would include testing the results obtained in this paper for other problems, investigating optimal parameter settings, exploring alternative seeding strategies and using extended evolutionary runs.
 
 4. *Scope for Improvement*  
-    In the paper, the process of selection of parameters for model construction hasn't been explained in sufficient detail. In addition, the model-based approach for evaluating the non-functional criteria doesn't seem to provide reliable results.  
+    In the paper, the process of selection of parameters for model construction hasn't been explained in sufficient detail. In addition, the model-based approach for evaluating the non-functional criteria doesn't seem reliable.  
 
 5. *Connections to previous papers*  
     The motivation is similar to that of the orginal [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/1/README.md), i.e. to optimize the non-functional properties of software.
