@@ -21,9 +21,9 @@ Paper: [Multi-objective improvement of software using co-evolution and smart see
     2. **Informative Visualization**: Visualization is done by plotting graphs for each GP individual (program) where non-functional properties are along the x-axis and number of errors are along the y-axis.
     
     3. **New Results**: Some important results obtained in this paper:  
-    - In general GP, initial population is sampled at random. In the paper, initial population seeded based on the original program has proved to produce better results.  
-    - Performance can be improved by using the application of co-evolution.  
-    - The experiments in the paper indicate small populations over a large number of generations are better whereas usually in general GP, a large population with small number of generations is better.  
+        - In general GP, initial population is sampled at random. In the paper, initial population seeded based on the original program has proved to produce better results.  
+        - Performance can be improved by using the application of co-evolution.  
+        - The experiments in the paper indicate small populations over a large number of generations are better whereas usually in general GP, a large population with small number of generations is better.  
     
     4. **Future Work**: Future work would include testing the results obtained in this paper for other problems, investigating optimal parameter settings, exploring alternative seeding strategies and using extended evolutionary runs.
 
