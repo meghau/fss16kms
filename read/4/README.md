@@ -6,27 +6,31 @@ Paper: [Multi-objective improvement of software using co-evolution and smart see
 
 2. *Keywords*
 
-    1. **Multi-objective optimization (MOO)**: 
+    1. **Multi-objective optimization (MOO)**: Multiobjective optimization involves minimizing or maximizing multiple objective functions subject to a set of constraints. [1]
     
     2. **Co-evolution**: 
     
-    3. **Branch coverage**: “Branch coverage is a testing method, which aims to ensure that each one of the possible branch from each decision point is executed at least once and thereby ensuring that all reachable code is executed. That is, every branch taken each way, true and false.” In the paper, branch coverage is used to generate a set of test cases with high behavioral diversity.
+    3. **Branch coverage**: “Branch coverage is a testing method, which aims to ensure that each one of the possible branch from each decision point is executed at least once and thereby ensuring that all reachable code is executed. That is, every branch taken each way, true and false.” [2] In the paper, branch coverage is used to generate a set of test cases with high behavioral diversity.
     
     4. **Semantic Score**: In this paper, semantic score is a component of the fitness function of a GP individual. It is defined as the sum of the errors from the expected outcomes.
     
 3. *Notes*
 
-    1. **Motivation**: 
+    1. **Motivation**: Several factors have to be considered when optimizing a software for the non-functional properties such as dependence on low-level details that are invisible to a developer or external factors like operating system and memory cache events. This makes manual optimization impossible. Hence, Genetic programming's success in optimization problems is exploited for the task. In this paper, only execution time is optimized, but a similar technique could be used to optimize other properties as well. 
     
-    2. **Informative Visualization**: 
+    2. **Informative Visualization**: Visualization is done by plotting graphs for each GP individual (program) where non-functional properties are along the x-axis and number of errors are along the y-axis.
     
-    3. **Related Work**: 
+    3. **New Results**: 
     
-    4. **Future Work**: 
+    4. **Future Work**: Future work would include testing the results obtained in this paper for other problems, investigating optimal parameter settings, exploring alternative seeding strategies and using extended evolutionary runs.
     
 4. *Proposed Improvements*
     1. 
 
-5. *References*
-    - [1] http://www.tutorialspoint.com/software_testing_dictionary/branch_testing.htm
+5. *Connections to previous papers*
+    The motivation is similar to that of the orginal [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/1/README.md), i.e. to optimize the non-functional properties of software.
+
+6. *References*
+    - [1] http://www.mathworks.com/discovery/multiobjective-optimization.html
+    - [2] http://www.tutorialspoint.com/software_testing_dictionary/branch_testing.htm
 
