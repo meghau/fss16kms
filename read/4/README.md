@@ -1,7 +1,7 @@
 ## Paper Review
 Paper: [Multi-objective improvement of software using co-evolution and smart seeding.](http://link.springer.com/chapter/10.1007/978-3-540-89694-4_7)
 
-1. *Reading*
+1. *Reading*  
     A. Arcuri, D. R. White, J. A. Clark, and X. Yao. Multi-objective improvement of software using co-evolution and smart seeding. In 7th International Conference on Simulated Evolution and Learning (SEAL 2008), pages 61–70, Melbourne, Australia, December 2008. Springer. 
 
 2. *Keywords*
@@ -31,7 +31,7 @@ Paper: [Multi-objective improvement of software using co-evolution and smart see
     In the paper, the process of selection of parameters for model construction hasn't been explained in sufficient detail. In addition, the model-based approach for evaluating the non-functional criteria doesn't seem reliable.  
 
 5. *Connections to previous papers*  
-    The motivation is similar to that of the orginal [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/1/README.md), i.e. to optimize the non-functional properties of software.
+    The motivation is similar to that of the orginal [GISMOE Challenge paper](https://github.com/meghau/fss16kms/blob/master/read/1/README.md), i.e. to optimize the non-functional properties of a software.
 
 6. *References*
     - [1] http://www.mathworks.com/discovery/multiobjective-optimization.html
