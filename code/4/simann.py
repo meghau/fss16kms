@@ -1,42 +1,42 @@
 from __future__ import division,print_function
 import random as r
-mn,mx=0,0
+mn = mx = r.randint((-10)**5,10**5)
 
 def Probability(old,new, t):
   from math import e
-  return e**((old-new)/t)
+  return e**((old-new)/(t+0.00001))
 
-def sim_anneal(kmax, emax): 
-  import random as r
+def sim_anneal(kmax, emax):
   s = r.randint((-10)**5,10**5) 
-  e = schaffer(s)                  # Initial state, energy.
+  e = energy(s)                                           # Initial state, energy.
   sb = s 
-  eb = e                    # Initial "best" solution
-  k = 0                              # Energy evaluation count.
-  while( k < kmax and e > emax):         # While time remains & not good enough:
-    sn = r.randint((-10)**5,10**5)                 #   Pick some neighbor.
-    en = energy(sn)                       #   Compute its energy.
+  eb = e                                                  # Initial "best" solution
+  k = 0                                                   # Energy evaluation count.
+  print ("\n, %04d, :%3.5f " %(k,eb),end="")
+  while( k < kmax and e > emax):                          # While time remains & not good enough:
+    sn = r.randint((-10)**5,10**5)                        #   Pick some neighbor.
+    en = energy(sn)                                       #   Compute its energy.
     
-    if(en < eb):                     #   Is this a new best?
+    if(en < eb):                                          #   Is this a new best?
       sb = sn 
-      eb = en          #     Yes, save it.
+      eb = en                                             #     Yes, save it.
       print("!",end="")
     
-    if(en < e):                      # Should we jump to better?
+    if(en < e):                                           # Should we jump to better?
       s = sn 
-      e = en            #    Yes!
+      e = en                                              #    Yes!
       print("+",end="")                        
     
-    elif(Probability(e, en, k/kmax) < r.random()): # Should we jump to worse?
+    elif(Probability(e, en, k/kmax) < r.random()):        # Should we jump to worse?
       s = sn
-      e = en            #    Yes, change state.
+      e = en                                              #    Yes, change state.
       print("?",end="")
     
     print(".",end="")
-    k = k + 1                        #   One more evaluation done    
+    k = k + 1                                             #   One more evaluation done    
     
-    if k % 50 == 0: 
-      print("\n",sb)
+    if k % 25 == 0: 
+      print ("\n, %04d, :%3.5f " % (k,eb), end="")
   return sb
 
 def schaffer(x):
