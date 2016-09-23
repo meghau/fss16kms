@@ -20,6 +20,7 @@ Justyna Petke, William B. Langdon, Mark Harman. Applying Genetic Improvement to 
 
    2. **Informative Visualization** : Very little, but a good diagram of how the GP approach was implemented. 
 
+   ![alt text](https://github.com/meghau/fss16kms/blob/master/read/5/diagram.png)
 
    3. **New Results** : The paper was able to demonstrate a marginal improvement in the running time of algorithms.  Although the results were mostly obtained by removing extraneous assertions from the code, something easily achieved by a human coder, this is promising since it shows reasonable intelligence in identifying extraneous code. 
 
