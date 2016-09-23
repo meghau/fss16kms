@@ -12,9 +12,23 @@ from math   import e
 from random import Random
 
 def schaffer( x ) : 
+    """
+    Schaffer function default, our class will allow us to pass in another function 
+    if desired -- I tried to generally make it work with more than 2 outputs but its 
+    not really tested nor am I sure itll work yet. 
+    """
     return (x**2, (x-2)**2)
 
 def drunkeness( old, new, k, kmax, rnd) : 
+    """
+    Like the schaffer function I can pass in custom drunkeness functions. 
+    It assumes the inputs : 
+
+       @old  : the energy I was 
+       @new  : the energy Im moving to 
+       @k    : the current iteration
+       @kmax : the max iteration 
+    """
     top  = old - new
     bot  = k / kmax
     p    = e**(top/(bot + 10e-7))
@@ -22,13 +36,32 @@ def drunkeness( old, new, k, kmax, rnd) :
     return p < rand 
 
 class simulated_annealer() : 
+    """
+    This class is will only minimize which really needs to be fixed if it is to be general.
+    For the sake of this assignment it is enough, so well just leave it for now. 
+
+    Generally you can work with the class like this : 
+
+    >  sa = simulated_annealer( <params> ) 
+      
+    And step through manually allowing you to control reporting or take intervention 
+
+    >  while( not sa.terminated ) : 
+    >      pass
+
+    Or just run till the passed in stopping criteria are met. 
+
+    >  sa.go()
+    
+    """
+
     def __init__( 
            self, 
-           metric       = schaffer, 
-           output       = True,
-           drunk_metric = drunkeness,
-           max_iter     = 5000, 
-           min_energy   = 1e-6,
+           metric       = schaffer,    
+           output       = True,         
+           drunk_metric = drunkeness,    
+           max_iter     = 5000,           
+           min_energy   = 1e-6,           
            valid_range  = (-10e6, 10e6),
            seed         = None,
            bline_iter   = 200
