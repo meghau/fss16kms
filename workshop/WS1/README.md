@@ -1,1 +1,1 @@
-Code for Workshop 1
+# Code for Workshop 1: Genetic Algorithms
