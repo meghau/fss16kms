@@ -2,7 +2,7 @@ Code for week 5
 
 # Homework 5
 
-###[Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/5/README.md)
+###[Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/6/README.md)
 
 ## Python
 
