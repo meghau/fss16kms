@@ -25,3 +25,7 @@
 ## Week 4
 + [Homework](https://github.com/meghau/fss16kms/tree/master/code/4#homework-4)
 + [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/4/README.md)
+
+## Week 5
++ [Homework](https://github.com/meghau/fss16kms/tree/master/code/5#homework-5)
++ [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/5/README.md)
