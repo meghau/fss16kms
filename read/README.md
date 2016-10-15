@@ -4,4 +4,6 @@
 + [Reading Assignment 3](https://github.com/meghau/fss16kms/blob/master/read/3/README.md)
 + [Reading Assignment 4](https://github.com/meghau/fss16kms/blob/master/read/4/README.md)
 + [Reading Assignment 5](https://github.com/meghau/fss16kms/blob/master/read/5/README.md)
++ [Reading Assignment 6](https://github.com/meghau/fss16kms/blob/master/read/6/README.md)
++ [Reading Assignment 7](https://github.com/meghau/fss16kms/blob/master/read/7/README.md)
 
