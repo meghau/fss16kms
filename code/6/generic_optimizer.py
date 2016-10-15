@@ -33,14 +33,20 @@ class Model():
 
     def generate_solution(self,retries = 500):
         for d in self.decisions:
-            i = retries
-            while(not d.isvalid()):
-                if i < 0:
-                    import sys
-                    print("Couldn't find a valid solution in {} retries".format(retries))
-                    sys.exit(0)
+            d.generate()
+        i = retries - 1    
+        
+        while ( not self.ok() ):
+            if i < 0:
+                #import sys
+                print("Couldn't find a valid solution for {} in {} retries".format(self.name,retries))
+                break
+                #sys.exit(0)
+
+            for d in self.decisions:
                 d.generate()
-                i-=1
+            
+            i-=1
 
     def e_val(self):
         for o in self.objectives:
@@ -88,4 +94,3 @@ kursawe.generate_solution()
 print(schaffer.name,[d.value for d in schaffer.decisions],schaffer.e_val())
 print(osyczka.name,[d.value for d in osyczka.decisions],osyczka.e_val())
 print(kursawe.name,[d.value for d in kursawe.decisions],kursawe.e_val())
-
