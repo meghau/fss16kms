@@ -40,5 +40,5 @@
 + Midterm!
 
 ## Week 8
-+ [Homework-6](https://github.com/meghau/fss16kms/tree/master/code/5#homework-6)
++ [Homework-6](https://github.com/meghau/fss16kms/tree/master/code/6#homework-6)
 + [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/7/README.md)
