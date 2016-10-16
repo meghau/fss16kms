@@ -42,3 +42,7 @@
 ## Week 8
 + [Homework-6](https://github.com/meghau/fss16kms/tree/master/code/6#homework-6)
 + [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/7/README.md)
+
+## Week 9
++ [Homework-7](https://github.com/meghau/fss16kms/tree/master/code/7#homework-7)
++ [Reading Assignment](https://github.com/meghau/fss16kms/blob/master/read/8/README.md)
