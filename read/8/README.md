@@ -27,6 +27,10 @@ Earl T. Barr , Mark Harman , Yue Jia , Alexandru Marginean , Justyna Petke, Auto
    3. **Baseline Results** : The baseline results were time taken in porting tasks done by programmers. In the case study, it was estimated that over 11 years and 39 updates, it took an average of 20 days(of elapsed time) for VLC developers to port x264 encoder. The framework completed the same task in 26 hours(continuous time).
 
    4. **Visualizations** : The authors provide architectural diagrams for the proposed algorithm and approach. A graph flow for identifying organ; Mutation, Crossover, Validation and methods were visualized. The resulting code after transplantation was visualized by diff command, and highlighting modified sections.
+
+   !(https://github.com/meghau/fss16kms/tree/master/read/8/fig2.png)
+   
+   !(https://github.com/meghau/fss16kms/tree/master/read/8/fig3.png)
    
 4. *Proposed Improvements* :
     - One assumption in the paper was that organs need very few of statements in their donor. The initial population was generated with one line of source code and then mutated. This can be one a limiting factor for identifying and porting complex functions.
