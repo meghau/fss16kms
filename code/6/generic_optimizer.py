@@ -1,3 +1,7 @@
+from __future__ import division,print_function
+import random as r
+r.seed(1000)
+
 class Decision():
     def __init__(self, name, minbound, maxbound):
         self.name = name
@@ -21,6 +25,22 @@ class Objective():
     def e_val(self, solution):
         self.value = self.formula_func(solution)
 
+class Solution():
+    def __init__(self, decisions):
+        self.decisions = decisions
+        self.objectives = None
+        
+    def __hash__(self):
+        return hash(tuple(self.decisions))
+    
+    def __eq__(self, other):
+        return self.decisions == other.decisions
+    
+    def clone(self):
+        new = Solution(self.decisions[:])
+        #new.objectives = self.objectives[:]
+        return new
+
 class Model():
     def __init__(self,name, decisions, objectives, constraints=[]):
         self.name = name
@@ -28,15 +48,16 @@ class Model():
         self.objectives = objectives
         self.constraints = constraints
 
-    def ok(self):
-        return all([c(self.decisions) for c in self.constraints])
+    def ok(self,solution):
+        return all([c(solution.decisions) for c in self.constraints])
 
     def generate_solution(self,retries = 500):
         for d in self.decisions:
             d.generate()
+        solution = Solution(self.decisions)
         i = retries - 1    
         
-        while ( not self.ok() ):
+        while ( not self.ok(solution) ):
             if i < 0:
                 #import sys
                 print("Couldn't find a valid solution for {} in {} retries".format(self.name,retries))
@@ -45,12 +66,15 @@ class Model():
 
             for d in self.decisions:
                 d.generate()
-            
+            solution = Solution(self.decisions)
             i-=1
+            
+        return solution
 
-    def e_val(self):
+    #check - this and above
+    def e_val(self, solution):
         for o in self.objectives:
-            o.e_val(self.decisions)
+            o.e_val(solution.decisions)
         return sum([o.value for o in self.objectives])
 
 import math
@@ -87,10 +111,50 @@ kursawe = Model("Kursawe",
                   Objective("f2", lambda dec: sum([abs(x.value)**0.8 + 5*math.sin(x.value**3) for x in dec])) ],
             )    
 
-schaffer.generate_solution()
+'''schaffer.generate_solution()
 osyczka.generate_solution()
 kursawe.generate_solution()
 
 print(schaffer.name,[d.value for d in schaffer.decisions],schaffer.e_val())
 print(osyczka.name,[d.value for d in osyczka.decisions],osyczka.e_val())
-print(kursawe.name,[d.value for d in kursawe.decisions],kursawe.e_val())
+print(kursawe.name,[d.value for d in kursawe.decisions],kursawe.e_val())'''
+
+def sa(model):
+  def Probability(old,new, t):
+    from math import e
+    return e**((old-new)/(t+10e-7))
+  
+  s = model.generate_solution() 
+  e = model.e_val(s)
+  sb = s.clone()
+  eb = e
+  k = 0
+  kmax = 2000
+  emax = 1e-7
+  print ("\n, %04d, :%3.5f " %(k,eb),end="")
+  while( k < kmax and e > emax):
+    sn = model.generate_solution() 
+    en = model.e_val(sn)
+    if(en < eb):
+      sb = sn.clone()
+      eb = en
+      print("!",end="")
+    
+    if(en < e):
+      s = sn.clone() 
+      e = en
+      print("+",end="")                        
+    
+    elif(Probability(e, en, k/kmax) < r.random()):
+      s = sn.clone()
+      e = en
+      print("?",end="")
+    
+    print(".",end="")
+    k = k + 1   
+    
+    if k % 25 == 0: 
+      print ("\n, %04d, :%3.5f " % (k,eb), end="")
+  return sb
+  
+sa(schaffer)
