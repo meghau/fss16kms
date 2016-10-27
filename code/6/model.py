@@ -27,7 +27,7 @@ class Objective():
 
 class Solution():
     def __init__(self, decisions):
-        self.decisions = decisions
+        self.decisions = decisions 
         self.objectives = None
         
     def __hash__(self):
