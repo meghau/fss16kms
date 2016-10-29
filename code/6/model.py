@@ -1,160 +1,157 @@
 from __future__ import division,print_function
+import math
+from O  import o 
 import random as r
-r.seed(1000)
 
 class Decision():
+
+    """
+    Decision object holds the metadata of how to make a decision
+    I changed it so it does not hold the value of that decision since 
+    that made the memory model very confusing
+    """
+
     def __init__(self, name, minbound, maxbound):
         self.name = name
         self.maxbound = maxbound
         self.minbound = minbound
-        self.value = None
-
-    def isvalid(self):
-        return self.minbound <= self.value <= self.maxbound
-
+ 
     def generate(self):
-        import random as r
-        self.value = r.uniform(self.minbound, self.maxbound)
+        return r.uniform(self.minbound, self.maxbound)
+
+def gt   ( a, b ) : return a > b
+def lt   ( a, b ) : return a < b
+def zero ( a, b ) : return math.abs(a) < math.abs(b)
 
 class Objective():
-    def __init__(self, name, formula_func):
-        self.name = name
-        self.value = None
-        self.formula_func = formula_func
 
-    def e_val(self, solution):
-        self.value = self.formula_func(solution)
+    """
+    Object holds meta data for how to generate an objective
+    value and how to judge the fitness of one objective against another
+    *Objective does not return a 'score' just a value - you have to define 
+    the better 
+    """
+
+    def __init__(self, name, formula, better=gt ):
+        self.name    = name
+        self.better  = better
+        self.formula = formula
+
+    def eval(self, solution):
+        return self.formula(solution)
 
 class Solution():
+
+    """
+    I made solution randomly genertate on creation. 
+    less code makes me happy 
+    """
     def __init__(self, decisions):
-        self.decisions = decisions 
+        self.decisions  = [ d.generate() for d in decisions ]
         self.objectives = None
+
+    def __getitem__( self, x ) : 
+        return self.decisions[x] 
+
+    def eval( self, objectives ) : 
+        self.objectives = [ o.eval(self) for o in objectives ]
+        return self #so i can chain s = Model.guess().eval() if I want.
         
-    def __hash__(self):
-        return hash(tuple(self.decisions))
-    
     def __eq__(self, other):
         return self.decisions == other.decisions
     
     def clone(self):
-        new = Solution(self.decisions[:])
-        #new.objectives = self.objectives[:]
-        return new
+        return copy.deepcopy(self)
+
+    def __str__(self):
+        return str([self.decisions, self.objectives])
+
+class Constraint() :
+    def __init__(self, name, lam ) : self.name, self.lam = name, lam
+    def __call__(self, *arg) : return self.lam( *arg ) 
 
 class Model():
-    def __init__(self,name, decisions, objectives, constraints=[]):
-        self.name = name
-        self.decisions = decisions
-        self.objectives = objectives
-        self.constraints = constraints
+ 
+    """
+    Default models. Defined in lists below. 
+    """
+    
+    @staticmethod
+    def schaffer ( ) : return Model( *_schaffer )
+
+    @staticmethod
+    def osyczka ( )  : return Model( *_osyczka  )
+
+    @staticmethod
+    def kursawe ( )  : return Model( *_kursawe  )
+    
+    def __init__(self,name, *decl, **kwargs):
+        self.name        = name
+        self.decisions   = [ x for x in decl if isinstance( x, Decision   ) ]
+        self.objectives  = [ x for x in decl if isinstance( x, Objective  ) ]
+        self.constraints = [ x for x in decl if isinstance( x, Constraint ) ]
 
     def ok(self,solution):
-        return all([c(solution.decisions) for c in self.constraints])
 
+        if self.constraints : 
+            return all([c(solution.decisions) for c in self.constraints])
+        else :
+            return True
+
+    def guess( self, retries=500) : return self.generate_solution(retries=retries)
     def generate_solution(self,retries = 500):
-        for d in self.decisions:
-            d.generate()
-        solution = Solution(self.decisions)
-        i = retries - 1    
-        
-        while ( not self.ok(solution) ):
-            if i < 0:
-                #import sys
-                print("Couldn't find a valid solution for {} in {} retries".format(self.name,retries))
-                break
-                #sys.exit(0)
+        i = retries
+        while( i > 0 ) : 
+           s = Solution( self.decisions )
+           if( self.ok( s ) ): return s
+           i -= 1        
 
-            for d in self.decisions:
-                d.generate()
-            solution = Solution(self.decisions)
-            i-=1
-            
-        return solution
+        raise Exception("Failed to generate valid solution in %d trys. Giving up."%(retries) ) 
 
-    #check - this and above
-    def e_val(self, solution):
-        for o in self.objectives:
-            o.e_val(solution.decisions)
-        return sum([o.value for o in self.objectives])
+    def eval( self, solution ) : 
+        if solution.objectives == None : 
+            solution.eval( self.objectives )
+        return solution.objectives 
 
-import math
+    def __str__( self ) : 
+        return ( 
+             self.__class__.__name__ + " " + self.name 
+             + " : Decisions " + str([ x.name for x in self.decisions ])
+             + ", Objectives " + str([ x.name for x in self.objectives ])
+             + ", Constraints " + str([ x.name for x in self.constraints ])
+        )
 
-schaffer = Model("Schaffer", 
-                [ Decision("x",-10**5,10**5) ],
-                [ Objective("f1", lambda x: x[0].value**2),  
-                  Objective("f2", lambda x: (x[0].value-2)**2) ],
-            )
 
-osyczka = Model("Osyczka",
-                [ Decision("x1",0,10),
-                  Decision("x2",0,10),
-                  Decision("x3",1,5),
-                  Decision("x4",1,5),
-                  Decision("x5",0,6),
-                  Decision("x6",0,10) ],
-                [ Objective("f1", lambda x: -1*(25*(x[0].value-2)**2 + (x[1].value-2)**2 + ((x[2].value-1)**2)*((x[3].value-4)**2) + (x[4].value - 1)**2)),
-                  Objective("f2", lambda x: sum([i.value**2 for i in x])) ],
-                [ lambda x: 0 <= (x[0].value + x[1].value - 2),
-                  lambda x: 0 <= (6 - x[0].value - x[1].value),
-                  lambda x: 0 <= (2 - x[1].value + x[0].value),
-                  lambda x: 0 <= (2 - x[0].value + 3*x[1].value),
-                  lambda x: 0 <= (4 - (x[0].value - 3)**2 - x[1].value),  
-                  lambda x: 0 <= ((x[0].value - 3)**3 + x[1].value - 4)
-                ]
-            )
+_schaffer = [
+    "Schaffer", 
+    Decision("x",-10**5,10**5),
+    Objective("f1", lambda x: x[0]**2, better=lt),  
+    Objective("f2", lambda x: (x[0]-2)**2, better=lt),
+]
 
-kursawe = Model("Kursawe",
-                [ Decision("x1",-5,5),
-                  Decision("x2",-5,5),
-                  Decision("x3",-5,5) ],
-                [ Objective("f1", lambda dec: sum([(-10)*(math.e**(-0.2*((dec[i].value**2 + dec[i+1].value**2)**0.5))) for i in [0,1]])),
-                  Objective("f2", lambda dec: sum([abs(x.value)**0.8 + 5*math.sin(x.value**3) for x in dec])) ],
-            )    
+_osyczka = [
+    "Osyczka",
+    Decision("x1",0,10),
+    Decision("x2",0,10),
+    Decision("x3",1,5),
+    Decision("x4",0,6),
+    Decision("x5",1,5),
+    Decision("x6",0,10),
+    Objective("f1", lambda x: -1*(25*(x[0]-2)**2 + (x[1]-2)**2 + ((x[2]-1)**2)*((x[3]-4)**2) + (x[4] - 1)**2), better=lt),
+    Objective("f2", lambda x: sum([i**2 for i in x]), better=lt),
+    Constraint( "c1", lambda x: 0 <= (x[0] + x[1] - 2) ),
+    Constraint( "c2", lambda x: 0 <= (6 - x[0] - x[1]) ),
+    Constraint( "c3", lambda x: 0 <= (2 - x[1] + x[0]) ), 
+    Constraint( "c4", lambda x: 0 <= (2 - x[0] + 3*x[1]) ),
+    Constraint( "c5", lambda x: 0 <= (4 - (x[2] - 3)**2 - x[3]) ),  
+    Constraint( "c6", lambda x: 0 <= ((x[4] - 3)**3 + x[5] - 4) ) 
+]
 
-'''schaffer.generate_solution()
-osyczka.generate_solution()
-kursawe.generate_solution()
-
-print(schaffer.name,[d.value for d in schaffer.decisions],schaffer.e_val())
-print(osyczka.name,[d.value for d in osyczka.decisions],osyczka.e_val())
-print(kursawe.name,[d.value for d in kursawe.decisions],kursawe.e_val())'''
-
-def sa(model):
-  def Probability(old,new, t):
-    from math import e
-    return e**((old-new)/(t+10e-7))
-  
-  s = model.generate_solution() 
-  e = model.e_val(s)
-  sb = s.clone()
-  eb = e
-  k = 0
-  kmax = 2000
-  emax = 1e-7
-  print ("\n, %04d, :%3.5f " %(k,eb),end="")
-  while( k < kmax and e > emax):
-    sn = model.generate_solution() 
-    en = model.e_val(sn)
-    if(en < eb):
-      sb = sn.clone()
-      eb = en
-      print("!",end="")
-    
-    if(en < e):
-      s = sn.clone() 
-      e = en
-      print("+",end="")                        
-    
-    elif(Probability(e, en, k/kmax) < r.random()):
-      s = sn.clone()
-      e = en
-      print("?",end="")
-    
-    print(".",end="")
-    k = k + 1   
-    
-    if k % 25 == 0: 
-      print ("\n, %04d, :%3.5f " % (k,eb), end="")
-  return sb
-  
-sa(schaffer)
+_kursawe = [
+    "Kursawe",
+    Decision("x1",-5,5),
+    Decision("x2",-5,5),
+    Decision("x3",-5,5),
+    Objective("f1", lambda dec: sum([(-10)*(math.e**(-0.2*((dec[i]**2 + dec[i+1]**2)**0.5))) for i in [0,1]])),
+    Objective("f2", lambda dec: sum([abs(x)**0.8 + 5*math.sin(x)**3 for x in dec]))
+]
