@@ -1,8 +1,9 @@
 #Team-O Proposal
 
 ##Links:
-https://github.com/Microsoft/malmo
-https://www.microsoft.com/en-us/research/project/project-malmo/
+- Microsoft minecraft research project for running simulations in minecraft
+- https://github.com/Microsoft/malmo 
+- https://www.microsoft.com/en-us/research/project/project-malmo/
 
 ##Proposal:
 - model - Minecraft map (finite state machine)
