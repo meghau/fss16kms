@@ -38,7 +38,9 @@ def score( path ) :
 
     return ((d / maxDist) + ( (len(path) - minMDist) / (maxMDist - minMDist))) * 0.5
 
-cpath  = ""
+cpath  = "(0,0)(1,3)(4,5) .
+"
+cpath  = "eeeseeeewwww"
 bpath  = cpath[:]
 npath  = cpath[:]
 step   = 4
