@@ -6,7 +6,7 @@ from time import sleep
 import Tkinter as tk
 import random 
 
-mymap = getMap( "./high_varience4.png" )
+mymap = getMap( "./high_varience.png" )
 
 for i, row in enumerate(mymap) :
    for j, cell in enumerate(row) : 
