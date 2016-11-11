@@ -7,7 +7,7 @@ from time import sleep
 import Tkinter as tk
 import random 
 
-mymap = genMap
+mymap = genMap()
 
 for i, row in enumerate(mymap) :
    for j, cell in enumerate(row) : 
