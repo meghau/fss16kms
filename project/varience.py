@@ -1,12 +1,13 @@
 from __future__ import division
 from Util import TwoWayDict
 from makemap import colorMap, getMap, colorStr
+from gen_randmap import genMap
 import sys 
 from time import sleep
 import Tkinter as tk
 import random 
 
-mymap = getMap( "./high_varience4.png" )
+mymap = genMap
 
 for i, row in enumerate(mymap) :
    for j, cell in enumerate(row) : 
