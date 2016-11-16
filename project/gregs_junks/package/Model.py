@@ -1,5 +1,7 @@
+from __future__ import division
+
 import logging
-import random
+from random import randrange, random, uniform
 from time import sleep
 from bresenhams import bresenhams
 from Tkinter import Tk, Canvas
@@ -19,10 +21,21 @@ class Objective( object ) :
     self.better = better 
 
 class Path( object ) : 
+  _id = 1
   def __init__( self, pos_list ) : 
-    self.data = pos_list
-  def __getitem__( self, x ) : 
-    return self.data[x]
+    self.id      = Path._id
+    Path._id    += 1
+    self.data    = [ p for p in pos_list ]
+    self.score   = None
+    self.fitness = None
+
+  def __eq__     ( self, y ) :   return self.data == y.data
+  def __getitem__( self, x ) :   return self.data[x]
+  def __setitem__(self, x, y ) : self.data[x] = y
+  def __len__( self ) :          return len( self.data ) 
+  def __iter__(self) : 
+    for x in self.data : 
+      yield x 
 
 class ColorGradient( ):
   def __init__( self, r, g, b, r_step, g_step, b_step ) :
@@ -34,40 +47,6 @@ class ColorGradient( ):
     self.g = (self.g - self.g_step) % 4095
     self.b = (self.b - self.b_step) % 4095
     return "#%03x%03x%03x"%(self.r, self.g, self.b )
-
-class Rule( object ) : 
-
-  def __init__( self, func )       : 
-    self.func = func  
-  def __call__( self, score, pos, pValue ) : 
-    return self.func( score, pos, pValue ) 
-
-  @staticmethod
-  def lt (a,b) : return a < b
-  def gt (a,b) : return a > b
-  def eq (a,b) : return a == b
-  
-  @staticmethod
-  def add( name, value ):
-    return Rule( lambda score, pos, pValue : score.__setitem__( name, score.get(name) + value ) ) 
-
-  @staticmethod
-  def addIf( pos_value, name, value ) :
-    return Rule( lambda score, pos, pValue : score.__setitem__( name, score.get(name) + value ) if pValue == pos_value else None) 
-
-  @staticmethod
-  def setIf( pos_value, name, value ) : 
-    return Rule( lambda score, pos, pValue : score.__setitem__( name, value ) if pValue == pos_value else None ) 
-   
-  @staticmethod
-  def setIfValue( cond_name, cond, cond_value, set_name, set_value ) : 
-    return Rule( lambda score, pos, pValue : score.__setitem__( set_name, set_value ) if cond(score[cond_name], cond_value) else None )
-
-  def addIfValue( cond_name, cond, cond_value, set_name, set_inc ):
-    return Rule( lambda score, pos, pValue : score.__setitme__(set_name, score[set_name] + set_value ) if cond( score[cond_name], cond_value ) else None )
-
-  def breakIf( cond_name, cond, cond_value ):
-    return Rule( lambda score, pos, pValue : "break" if cond(score[name], value ) else None )
     
 class Model( object ) :
 
@@ -76,8 +55,18 @@ class Model( object ) :
   def __iter__( self ) :
     for r in xrange( self.height ) :
       for c in xrange( self.width ) :
-        yield ( r, c )
+        yield ((r,c), self[(r,c)] )
     
+  def __getitem__( self, x ) :
+    if isinstance( x, tuple ) :
+      return self.map[x[0]][x[1]]
+    else :
+      return self.map[x]
+
+  def __setitem__( self, x, y ):
+    assert isinstance( x, tuple ), "model must be reference using a 2D point tuple of (row, col)"
+    self.map[x[0]][x[1]] = y
+
   def __init__( self ) :
 
     self.id     = Model._id 
@@ -96,6 +85,7 @@ class Model( object ) :
     self.adjLst = None
     self.objs   = []
     self.rules  = []
+    self.metrics= []
     logging.info( "Model %d inititalized"%(self.id) ) 
 
   def setStart( self, p ) : 
@@ -112,8 +102,8 @@ class Model( object ) :
       self.poi.append( p ) 
      
   def findPOI( self, lam ) : 
-    for p in self : 
-      if( lam(p, self.map[p[0]][p[1]]) ) :
+    for p,v in self : 
+      if( lam(p,v) ) :
         logging.info( "Adding poi %s", p ) 
         self.poi.append( p ) 
 
@@ -123,9 +113,15 @@ class Model( object ) :
     else : 
       exit(1)
 
+  def addObjective( self, obj ) :
+    self.objs.append( obj ) 
+
   def addRule( self, rule ) :
     self.rules.append( rule ) 
  
+  def addPathMetric( self, pathscore ) :
+    self.metrics.append( pathscore )
+
   def loadMap( self, mapFile, start=None ) :
     """
     Loads a file in a a map from any basic per pixel form. 
@@ -154,35 +150,99 @@ class Model( object ) :
 
     self.map = [ [ -1 for _ in xrange( self.width) ] for _ in xrange( self.height ) ] 
 
-    for r,c in self :
-
+    for p,v in self :
       if start is not None : 
-        if legend[data[c,r+1]] == start:
-          self.start = ( r, c)
+        if legend[data[p[1], p[0]+1]] == start:
+          self.start = p
 
-      self.map[r][c] = legend[data[c,r+1]]
+      self[p] = legend[data[p[1],p[0]+1]]
 
+  def validPath( self, path ) :
+    for i in xrange( len(path) - 1 ) :
+      for p in bresenhams( path[i], path[i+1] ) :
+        if self[p] == 0 :
+          return False
+    return True
+    
   def scorePath( self, path ) :
+    
+    if( path.score is not None ) : return path.score
+
     score = { x.name : x.start for x in self.objs } 
 
+    evalRule = True 
     for i in xrange( len( path ) - 1 ) :
       for p in bresenhams( path[i], path[i+1] ):
         for rule in self.rules : 
-          rule( score, p, self.map[p[0]][p[1]] ) 
+          if evalRule :
+            ret = rule( score, p, self[p] ) 
+            if ret == "break" : 
+              evalRule = False
+        for o in self.objs : 
+          score[o.name] = min(max( score[o.name], o.min ), o.max)
 
+    for met in self.metrics : 
+      met.score( self, score, path ) 
+
+    path.score = score
     return score
 
 
-  def addObjective( self, objs ) :
     if not isinstance( objs, Objective ) : 
       exit(1)
     self.objs.append( objs ) 
 
-  def getColor( self, p ) : 
-    return self.color[ self.map[p[0]][p[1]] ]
+  def getColor( self, v ) : 
+    return self.color[ v ]
   
 
-  def buildWaypoints( self, waypoints=None, renderNetwork=False, renderCoverage=False ) : 
+  def buildWaypoints( self, coverage, renderNetwork=True, renderCoverage=False, color=None ) :
+
+    """
+    Build a waypoints map. A hacky way to make random paths. 
+    Add poi, calculate the coverage then add random points until coverage is 
+    at or above threshold
+    """
+
+    grad        = color if color else ColorGradient( 4095,0,4095,20,0,5)
+    waypoints   = set() 
+    self.adjLst = defaultdict( list )  
+    open_space  = len([1 for p,v in self if v != 0 ])
+    givenpoints = [ self.start ] + self.poi
+
+    cur_coverage = 0
+    while( cur_coverage < coverage ) :
+
+      newpoint = givenpoints.pop() if givenpoints else (randrange(self.height-1), randrange(self.width-1))
+      
+      if( self[newpoint] == 0 ): continue
+
+      for waypoint in list( waypoints ) :
+        walls = len([1 for p in bresenhams( waypoint, newpoint ) if self[p] == 0 ])
+        if walls == 0:
+          self.adjLst[waypoint].append(newpoint)
+          self.adjLst[newpoint].append(waypoint)
+
+      waypoints.add( newpoint )
+
+      if renderNetwork :
+        self.draw_oval( newpoint, grad )
+        for dest in self.adjLst[ newpoint ] :
+          self.draw_line( newpoint, dest, grad )
+        if (len(waypoint) % 50 == 0 ):
+          self.update()
+        
+      if renderCoverage :
+        for dest in self.adjLst[ newpoint ] :
+          for p in bresenhams( newpoint, dest ) :
+            self.draw_rect( p, grad )
+        self.update()
+
+      cur_coverage = len( waypoints ) / open_space  #integer division.
+      logging.info( "Waypoints : %d, Coverage %f%%", len(waypoints), cur_coverage * 100 )
+
+  def buildWaypoints_deprcated( self, waypoints=None, renderNetwork=False, renderCoverage=False ) : 
+
     #TODO : lets make this record coverage as it goes and use it 
     #       as a termination condition.
 
@@ -201,7 +261,6 @@ class Model( object ) :
     pnts = set()
     pnts.add( self.start ) 
     map( lambda i : pnts.add( i ), self.poi )
-    edge = defaultdict( lambda : defaultdict( int ) ) 
 
     """
     1.) Randomly create a waypoint map. 
@@ -275,7 +334,6 @@ class Model( object ) :
     """
 
     weights = defaultdict( lambda : 0 ) 
-    
 
     if maxLen is None : 
       maxLen = len( self.adjLst.keys() ) / 5
@@ -290,14 +348,15 @@ class Model( object ) :
           break
         else :
           weights[npos] += 1
-      paths.append( path )
+      paths.append( Path(path) )
 
     return paths
 
     
-  def renderMap( self, scale ) :
+  def renderMap( self, scale, showGrid=True ) :
 
-    
+    width = 1 if showGrid else 0
+
     if( self.map == None ):
        logging.error("No map loaded, can not render")
        return 
@@ -313,8 +372,8 @@ class Model( object ) :
     for i,k in enumerate( self.color.keys() ) :
        self.canvas.create_rectangle( i*scale*2, off, (i+1)*scale*2, off+(scale*2), fill=self.color[i], tag="map" ) 
 
-    for p in self : 
-       self.draw_rect( p, self.getColor( p ), tag="map" ) 
+    for p,v in self : 
+       self.draw_rect( p, self.getColor( v ), tag="map", width=width ) 
     
     self.update()
   
@@ -322,35 +381,39 @@ class Model( object ) :
   Helper functions for easy drawing
   """
   def draw_oval( self, p, color, tag="overlay" ) :
+    c = color() if callable( color ) else color
     self.canvas.create_oval( 
        p[1]       * self.scale,  p[0]      * self.scale, 
       (p[1] + 1 ) * self.scale, (p[0] + 1) * self.scale, 
-      fill=color, tag=tag
+      fill=c, tag=tag
     )
 
-  def draw_rect( self, p, color, tag="overlay" ) :
+  def draw_rect( self, p, color, tag="overlay", width=1 ) :
+    c = color() if callable( color ) else color
     self.canvas.create_rectangle( 
        p[1]       * self.scale,  p[0]      * self.scale, 
       (p[1] + 1 ) * self.scale, (p[0] + 1) * self.scale, 
-      fill=color, tag=tag
+      fill=c, tag=tag, width=width
     )
 
   def draw_line( self, p1, p2, color, tag="overlay" ) :
+    c = color() if callable( color ) else color
     self.canvas.create_line( 
       ( p1[1] + .5 ) * self.scale, ( p1[0] + .5 ) * self.scale, 
       ( p2[1] + .5 ) * self.scale, ( p2[0] + .5 ) * self.scale, 
-      fill=color, tag=tag
+      fill=c, tag=tag
     )
 
-  def draw_text( self, pos, s ) :
-    self.canvas.create_text( 50, (self.scale*(self.height+4)) + (30*pos), text=s, tag="overlay" )
+  def draw_text( self, pos, s, color ) :
+    c = color() if callable( color ) else color
+    self.canvas.create_text( 50, (self.scale*(self.height+4)) + (30*pos), text=s, tag="overlay", fill=c )
 
-  def draw_path( self, path, color ) :
+  def draw_path( self, path, color, drawWaypoints=True ) :
 
     for i in xrange( len( path) - 1 ) :
-      self.draw_oval( path[i], color() if callable( color ) else color ) 
-      self.draw_line( path[i], path[i+1], color() if callable( color ) else color ) 
-    self.draw_oval( path[-1], color() if callable( color )  else color ) 
+      if( drawWaypoints ) : self.draw_oval( path[i], color ) 
+      self.draw_line( path[i], path[i+1], color ) 
+    if( drawWaypoints ) : self.draw_oval( path[-1], color ) 
 
   def update( self ) :
     self.canvas.update()
@@ -375,14 +438,13 @@ class Model( object ) :
       self.update()
       sleep(0.1)
 
-
     self.reset()
 
 def weighted_choice(c, weights ):
    w = [ weights[x]^2 for x in c ]
    w = [ max(w) - x for x in w ]
    total = sum(w)
-   r = random.uniform(0, total)
+   r = uniform(0, total)
    upto = 0
    for c, w in zip( c, w ):
       if upto + w >= r:
