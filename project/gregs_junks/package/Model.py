@@ -39,19 +39,36 @@ class Rule( object ) :
 
   def __init__( self, func )       : 
     self.func = func  
-  def do( self, score, mapo, pos ) : 
-    return self.func( score, mapo, pos ) 
+  def __call__( self, score, pos, pValue ) : 
+    return self.func( score, pos, pValue ) 
 
+  @staticmethod
+  def lt (a,b) : return a < b
+  def gt (a,b) : return a > b
+  def eq (a,b) : return a == b
+  
   @staticmethod
   def add( name, value ):
-    return Rule( lambda score, mapo, pos : setattr(score, name, getattr(score, name) + value ) )
+    return Rule( lambda score, pos, pValue : score.__setitem__( name, score.get(name) + value ) ) 
 
   @staticmethod
-  def addifpos( pos_value, name, value ) :
-    return Rule( lambda score, mapo, pos : setattr(score, name, getattr(score, name ) + value ) is mapo[pos[0]][pos[1]] == pos_value )
+  def addIf( pos_value, name, value ) :
+    return Rule( lambda score, pos, pValue : score.__setitem__( name, score.get(name) + value ) if pValue == pos_value else None) 
+
+  @staticmethod
+  def setIf( pos_value, name, value ) : 
+    return Rule( lambda score, pos, pValue : score.__setitem__( name, value ) if pValue == pos_value else None ) 
+   
+  @staticmethod
+  def setIfValue( cond_name, cond, cond_value, set_name, set_value ) : 
+    return Rule( lambda score, pos, pValue : score.__setitem__( set_name, set_value ) if cond(score[cond_name], cond_value) else None )
+
+  def addIfValue( cond_name, cond, cond_value, set_name, set_inc ):
+    return Rule( lambda score, pos, pValue : score.__setitme__(set_name, score[set_name] + set_value ) if cond( score[cond_name], cond_value ) else None )
+
+  def breakIf( cond_name, cond, cond_value ):
+    return Rule( lambda score, pos, pValue : "break" if cond(score[name], value ) else None )
     
-
-
 class Model( object ) :
 
   _id = 0
@@ -107,7 +124,6 @@ class Model( object ) :
       exit(1)
 
   def addRule( self, rule ) :
-    rule.parent = self
     self.rules.append( rule ) 
  
   def loadMap( self, mapFile, start=None ) :
@@ -148,14 +164,13 @@ class Model( object ) :
 
   def scorePath( self, path ) :
     score = { x.name : x.start for x in self.objs } 
-    pos   = self.start
 
-    logging.info( "Score %s", score ) 
+    for i in xrange( len( path ) - 1 ) :
+      for p in bresenhams( path[i], path[i+1] ):
+        for rule in self.rules : 
+          rule( score, p, self.map[p[0]][p[1]] ) 
 
-    for rule in self.rules : 
-      rule.do( score, self.map, pos ) 
-
-    logging.info( "Score %s", score ) 
+    return score
 
 
   def addObjective( self, objs ) :
@@ -166,16 +181,15 @@ class Model( object ) :
   def getColor( self, p ) : 
     return self.color[ self.map[p[0]][p[1]] ]
   
-  def drawPath( self, path, color ) :
-
-    for i in xrange( len( path) - 1 ) :
-      self.draw_oval( path[i], color() if callable( color ) else color ) 
-      self.draw_line( path[i], path[i+1], color() if callable( color ) else color ) 
-
-    self.draw_oval( path[-1], color() if callable( color )  else color ) 
-    self.canvas.update()
 
   def buildWaypoints( self, waypoints=None, renderNetwork=False, renderCoverage=False ) : 
+    #TODO : lets make this record coverage as it goes and use it 
+    #       as a termination condition.
+
+    #TODO : Better yet yank out the whole random waypoint system and 
+    #       give it a visibility map -- that can give perfect coverage
+    #       in a whole lot less time -- but that'll take a while to code xx.
+    
     """ 
     Lets generate a set of random path segements and a navigation graph
     will return a %percent of the open space in the map searched. 
@@ -221,6 +235,9 @@ class Model( object ) :
         if valid :
           self.adjLst[p].append(q)
 
+    """
+    Visuals of the waypoint map
+    """
     if renderNetwork or renderCoverage : 
       self.reset()
       grad = ColorGradient( 4095,0,4095,20,0,5)
@@ -248,18 +265,31 @@ class Model( object ) :
     return float( len(open_p) ) / float( open_c ) 
 
   def generatePaths( self, n, maxLen=None ) : 
+    """
+    Function for generating a set of random paths 
+    My first attemp chose any of a random set of neighbors
+    per waypoint, but this meant I didnt hit a lot of waypoints. 
+    Using a weighted neighbor choice that prioritizes rarely used neighbors
+    first help to cover more of the map in the initial baseline
+    search. 
+    """
+
+    weights = defaultdict( lambda : 0 ) 
+    
 
     if maxLen is None : 
-      maxLen = len( self.adjLst.keys() ) / 10
+      maxLen = len( self.adjLst.keys() ) / 5
 
     paths = []
     for _ in xrange( n ) : 
       path = [self.start]
       while len( path ) < maxLen : 
-        npos = random.choice( self.adjLst[path[-1]] )
+        npos = weighted_choice( self.adjLst[path[-1]], weights )
         path.append( npos ) 
         if( self.map[npos[0]][npos[1]] == 3 ):
           break
+        else :
+          weights[npos] += 1
       paths.append( path )
 
     return paths
@@ -312,6 +342,16 @@ class Model( object ) :
       fill=color, tag=tag
     )
 
+  def draw_text( self, pos, s ) :
+    self.canvas.create_text( 50, (self.scale*(self.height+4)) + (30*pos), text=s, tag="overlay" )
+
+  def draw_path( self, path, color ) :
+
+    for i in xrange( len( path) - 1 ) :
+      self.draw_oval( path[i], color() if callable( color ) else color ) 
+      self.draw_line( path[i], path[i+1], color() if callable( color ) else color ) 
+    self.draw_oval( path[-1], color() if callable( color )  else color ) 
+
   def update( self ) :
     self.canvas.update()
 
@@ -319,6 +359,9 @@ class Model( object ) :
   def delete( self, tag="overlay" ) : self.canvas.delete( tag )
 
   def testBresenhams( self,  p0, p1 ) : 
+    """
+    Make sure the bresenhams is fully tracing the line
+    """
     self.draw_oval( p0, "#00ff00" ) 
     self.update()
     sleep(0.1)
@@ -334,6 +377,18 @@ class Model( object ) :
 
 
     self.reset()
+
+def weighted_choice(c, weights ):
+   w = [ weights[x]^2 for x in c ]
+   w = [ max(w) - x for x in w ]
+   total = sum(w)
+   r = random.uniform(0, total)
+   upto = 0
+   for c, w in zip( c, w ):
+      if upto + w >= r:
+         return c
+      upto += w
+   assert False, "Shouldn't get here"
 
 def getColorString( p ) : 
   return "#%02x%02x%02x"%p[0:3]
