@@ -150,12 +150,14 @@ def bdom(problem, one, two):
     a = problem.evaluate(one)
     b = problem.evaluate(two)
     
-    allSmaller = True
+    oneSmaller    = False
+    allSmallerOrE = True
 
     for (x,y) in zip(a,b) : 
-        if( x > y )  : allSmaller = False
-    
-    return allSmaller
+        if( x > y )  : allSmallerOrE = False
+        if( x < y )  : oneSmaller    = True
+
+    return (oneSmaller and allSmallerOrE)
 
 def fitness(problem, population, point):
     return sum( [ 0 if bdom(problem, point, x ) else 1 for x in population ] )
