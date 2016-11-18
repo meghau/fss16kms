@@ -4,7 +4,13 @@ import logging
 from random import randrange, random, uniform
 from time import sleep
 from bresenhams import bresenhams
-from Tkinter import Tk, Canvas
+
+#Python 2/3 portability
+try : 
+  from Tkinter import Tk, Canvas
+except :
+  from tkinter import Tk, Canvas
+
 from collections import defaultdict
 from PIL import Image
 
@@ -85,6 +91,7 @@ class Model( object ) :
     self.adjLst = None
     self.objs   = []
     self.rules  = []
+    self.consts = []
     self.metrics= []
     logging.info( "Model %d inititalized"%(self.id) ) 
 
@@ -113,14 +120,10 @@ class Model( object ) :
     else : 
       exit(1)
 
-  def addObjective( self, obj ) :
-    self.objs.append( obj ) 
-
-  def addRule( self, rule ) :
-    self.rules.append( rule ) 
- 
-  def addPathMetric( self, pathscore ) :
-    self.metrics.append( pathscore )
+  def addObjective( self, obj ) : self.objs.append( obj ) 
+  def addRule( self, rule )     : self.rules.append( rule ) 
+  def addMetric( self, metric ) : self.metrics.append( metics )
+  def addConstraint( self, c )  : self.consts.append( c )
 
   def loadMap( self, mapFile, start=None ) :
     """
@@ -158,10 +161,19 @@ class Model( object ) :
       self[p] = legend[data[p[1],p[0]+1]]
 
   def validPath( self, path ) :
+
+    if( path.score == None ):
+      self.scorePath( path )
+
     for i in xrange( len(path) - 1 ) :
       for p in bresenhams( path[i], path[i+1] ) :
         if self[p] == 0 :
           return False
+
+    for con in self.consts :
+      if not con( path.score ) :
+        return False 
+    
     return True
     
   def scorePath( self, path ) :
@@ -229,7 +241,7 @@ class Model( object ) :
         self.draw_oval( newpoint, grad )
         for dest in self.adjLst[ newpoint ] :
           self.draw_line( newpoint, dest, grad )
-        if (len(waypoint) % 50 == 0 ):
+        if len(waypoints) % 75 == 0 : 
           self.update()
         
       if renderCoverage :
@@ -323,7 +335,7 @@ class Model( object ) :
 
     return float( len(open_p) ) / float( open_c ) 
 
-  def generatePaths( self, n, maxLen=None ) : 
+  def generatePaths( self, n, maxLen=10, showPaths=False ) : 
     """
     Function for generating a set of random paths 
     My first attemp chose any of a random set of neighbors
@@ -333,13 +345,23 @@ class Model( object ) :
     search. 
     """
 
+    if showPaths : 
+      self.reset() 
+
     weights = defaultdict( lambda : 0 ) 
 
     if maxLen is None : 
       maxLen = len( self.adjLst.keys() ) / 5
 
-    paths = []
-    for _ in xrange( n ) : 
+    paths  = []
+    misses = 0 
+    while( len( paths ) < n ) :
+
+      if misses > 5 :
+        maxLen = maxLen + (maxLen // 10 )
+        logging.info("Extending maxLen to %d", maxLen )
+        misses = 0
+
       path = [self.start]
       while len( path ) < maxLen : 
         npos = weighted_choice( self.adjLst[path[-1]], weights )
@@ -348,7 +370,21 @@ class Model( object ) :
           break
         else :
           weights[npos] += 1
-      paths.append( Path(path) )
+
+      path = Path(path)
+
+      if showPaths : 
+        self.delete( tag="remove" )
+        self.draw_path( path, "blue", tag="remove")
+        self.update()
+      if self.validPath( path ) :
+        logging.info( "Path %d found", len( paths ) )
+        misses = 0 
+        paths.append( Path(path) )
+        if showPaths : 
+          self.draw_path( path, "black")
+      else : 
+        misses += 1
 
     return paths
 
@@ -408,12 +444,12 @@ class Model( object ) :
     c = color() if callable( color ) else color
     self.canvas.create_text( 50, (self.scale*(self.height+4)) + (30*pos), text=s, tag="overlay", fill=c )
 
-  def draw_path( self, path, color, drawWaypoints=True ) :
+  def draw_path( self, path, color, drawWaypoints=True, tag="overlay" ) :
 
     for i in xrange( len( path) - 1 ) :
-      if( drawWaypoints ) : self.draw_oval( path[i], color ) 
-      self.draw_line( path[i], path[i+1], color ) 
-    if( drawWaypoints ) : self.draw_oval( path[-1], color ) 
+      if( drawWaypoints ) : self.draw_oval( path[i], color, tag=tag ) 
+      self.draw_line( path[i], path[i+1], color, tag=tag ) 
+    if( drawWaypoints ) : self.draw_oval( path[-1], color, tag=tag ) 
 
   def update( self ) :
     self.canvas.update()

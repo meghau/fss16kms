@@ -1,3 +1,11 @@
+class Op():
+  @staticmethod
+  def lt (a,b) : return a < b
+  @staticmethod
+  def gt (a,b) : return a > b
+  @staticmethod
+  def eq (a,b) : return a == b
+
 class DistanceToPoint( ):
   def __init__( self, name, point ) :
     self.point = point
@@ -8,6 +16,14 @@ class DistanceToPoint( ):
     d = float((x[0] - y[0])**2 + (x[1] - y[1])**2)**.5
     score[self.name] = d 
 
+class Constraint( ) : 
+  def __init__( self, name, op, value ):
+    self.name = name 
+    self.op = op
+    self.value = value 
+  def __call__( self, score ):
+    return self.op(score[self.name], self.value)
+
 class Rule( object ) : 
 
   def __init__( self, func )       : 
@@ -15,12 +31,6 @@ class Rule( object ) :
   def __call__( self, score, pos, pValue ) : 
     return self.func( score, pos, pValue ) 
 
-  @staticmethod
-  def lt (a,b) : return a < b
-  @staticmethod
-  def gt (a,b) : return a > b
-  @staticmethod
-  def eq (a,b) : return a == b
   
   @staticmethod
   def add( name, value ):

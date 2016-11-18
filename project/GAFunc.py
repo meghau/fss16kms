@@ -27,10 +27,20 @@ def crossover( model, mom, dad ) :
   dad_start = dad[d_index]
   return Path( mom[:m_index] + dad[d_index:] ) 
 
+def grow( model, mom, grow_rate ) :
+  if random() < grow_rate :
+    mom.data.append( choice(model.adjLst[mom[-1]] ) )
+  return mom
+  
 def mutate( model, mom, mutation_rate ) :
+
+  """
+  Mutation idea one 
+  """
   for i in xrange( 1, len(mom) ) : 
     if random() < mutation_rate :
-      mom[i] = choice(model.adjLst[ mom[i-1]])
+       mom[i] = choice( model.adjLst[mom[i-1]] )
+
   return mom
       
 def elitism( model, paths, retain_size, dom_func ) :
