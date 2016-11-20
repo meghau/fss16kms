@@ -49,6 +49,7 @@ class Solution():
     def __init__(self, decisions):
         self.decisions  = [ d.generate() for d in decisions ]
         self.objectives = None
+        self.decisions_objects = decisions
 
     def __getitem__( self, x ) : 
         return self.decisions[x] 
@@ -65,6 +66,10 @@ class Solution():
 
     def __str__(self):
         return str([self.decisions, self.objectives])
+
+    def generate_decision(self, index):
+        assert index < len(self.decisions)
+        self.decisions[index]  = self.decisions_objects[index].generate()
 
 class Constraint() :
     def __init__(self, name, lam ) : self.name, self.lam = name, lam
