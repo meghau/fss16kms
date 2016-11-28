@@ -20,8 +20,6 @@ logging.info( "Logging init parameters : " + str( logArgs ) )
 
 m = Model()
 m.loadMap( "./maps/sample.png" )
-#m.loadMap( "./maps/pathGenSample.png" )
-#m.loadMap( "./maps/sample2.png" )
 m.renderMap( 6, showGrid=False ) 
 m.setStart( (1,1) ) 
 m.findPOI( lambda p,m: m == 3 )
@@ -39,20 +37,20 @@ m.addObjective( Objective( "alive",  1,    0,    1, better=gt) )
 """
 Set rules
 """
-#m.addRule( Rule.add( "steps", 1 ) )  
+m.addRule( Rule.add( "steps", 1 ) )  
 m.addRule( Rule.add( "health", -1 ) ) 
 m.addRule( Rule.addIf( 6, "gold", 10 ) )
 m.addRule( Rule.setIf( 3, "goal", 1 ) ) 
 m.addRule( Rule.addIf( 3, "gold", 1000 ) )
 m.addRule( Rule.addIf( 3, "health", 1000 ) )
-#m.addRule( Rule.addIf( 8, "steps", 4) ) 
+m.addRule( Rule.addIf( 8, "steps", 4) ) 
 m.addRule( Rule.addIf( 5, "health", -5 ) )
 m.addRule( Rule.addIf( 7, "health", 10 ) ) 
 m.addRule( Rule.setIfValue( "health", lt, 1, "alive", 0 ) ) 
+m.addRule( Rule.breakIf( "health", lt, 1) ) 
+m.addRule( Rule.breakIf( "goal", eq, 1 ) )
 
-#m.addConstraint( Constraint( "alive", Op.eq, 1 ) )
 
-m.buildWaypoints( coverage=0.04, renderNetwork=True ) 
 
 
 logging.info("====================")
@@ -72,15 +70,13 @@ logging.info("%15s : %s", "pop size",  popSize)
 logging.info("%15s : %s", "mutation rate", mutRate)
 logging.info("%15s : %s", "grow rate", grwRate)
 
-population = m.generatePaths( initPop, maxLen=100, showPaths=False ) 
-elitism( m, population, popSize, bdom )
-initial_pop= [ Path(p) for p in population ]
-logging.info("paths generated : %d", len(population) )
-
+population = [Path([m.start])]
 while gen < gens :
   gen +=1
   logging.info("====GENERATION%02d====", gen)
   children = []
+
+  
   while( len( children) < 100 ) : 
     mom = choice( population )
     dad = choice( population )

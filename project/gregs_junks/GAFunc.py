@@ -6,6 +6,9 @@ from random import randrange, random, choice
 
 def bdom( model, a, b ) : 
   dom = False
+  model.scorePath( a ) 
+  model.scorePath( b )
+   
   for obj in model.objs : 
     if( obj.better( a.score[obj.name], b.score[obj.name] ) ) : 
       dom = True
@@ -22,11 +25,11 @@ def crossover( model, mom, dad ) :
   d_index = randrange( len(dad) )
   mom_end   = mom[m_index-1]
   dad_start = dad[d_index]
-  return mom[:m_index] + dad[d_index:] 
+  return Path( mom[:m_index] + dad[d_index:] ) 
 
 def grow( model, mom, grow_rate ) :
   if random() < grow_rate :
-    mom.append( choice(model.adjLst[mom[-1]] ) )
+    mom.data.append( choice(model.adjLst[mom[-1]] ) )
   return mom
   
 def mutate( model, mom, mutation_rate ) :
