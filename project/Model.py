@@ -1,5 +1,4 @@
 from __future__ import division
-
 import logging
 from random      import randrange, random, uniform
 from time        import sleep
@@ -10,7 +9,18 @@ from collections import defaultdict, namedtuple
 from PIL         import Image
 from Rule        import Rule, Constraint, DistanceToPoint
 
-Objective = namedtuple( "Objective", ["name", "start", "min", "max", "better"] )
+
+#Objective = namedtuple( "Objective", ["name", "start", "min", "max", "better","baseline_max","baseline_min"] )
+
+class Objective(object) :
+  def __init__(self, name, start, min, max, better, baseline_max=None, baseline_min=None):
+    self.name = name
+    self.min = min
+    self.max = max
+    self.better = better
+    self.start = start
+    self.baseline_min = baseline_min
+    self.baseline_max = baseline_max
 
 class Path( object ) : 
   def __init__( self, pos_list ) : 
@@ -84,6 +94,7 @@ class Model( object ) :
     self.rules  = []
     self.consts = []
     self.metrics= []
+    self.baseline_population = []
     logging.info( "Model inititalized" ) 
 
   def setStart( self, p ) : 
@@ -386,7 +397,7 @@ class Model( object ) :
       m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
 
       m.addObjective( Objective( "health", 1000, 0, 1000, better=gt))
-      m.addObjective( Objective( "steps",  0,    0, maxV, better=gt)) 
+      m.addObjective( Objective( "steps",  0,    0, maxV, better=lt)) 
       m.addObjective( Objective( "gold",   15,   0, maxV, better=gt)) 
       m.addObjective( Objective( "goal",   0,    0,    1, better=gt)) 
       m.addObjective( Objective( "alive",  1,    0,    1, better=gt)) 
@@ -441,7 +452,7 @@ class Model( object ) :
      # m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
 
       m.addObjective( Objective( "health", 1000, 0, 1000, better=gt))
-      m.addObjective( Objective( "steps",  0,    0, maxV, better=gt)) 
+      m.addObjective( Objective( "steps",  0,    0, maxV, better=lt)) 
       m.addObjective( Objective( "gold",   15,   0, maxV, better=gt)) 
       m.addObjective( Objective( "goal",   0,    0,    1, better=gt)) 
       m.addObjective( Objective( "alive",  1,    0,    1, better=gt)) 
