@@ -1,5 +1,4 @@
 from __future__ import division
-
 import logging
 from random      import randrange, random, uniform
 from time        import sleep
@@ -10,7 +9,18 @@ from collections import defaultdict, namedtuple
 from PIL         import Image
 from Rule        import Rule, Constraint, DistanceToPoint
 
-Objective = namedtuple( "Objective", ["name", "start", "min", "max", "better"] )
+
+#Objective = namedtuple( "Objective", ["name", "start", "min", "max", "better","baseline_max","baseline_min"] )
+
+class Objective(object) :
+  def __init__(self, name, start, min, max, better, baseline_max=None, baseline_min=None):
+    self.name = name
+    self.min = min
+    self.max = max
+    self.better = better
+    self.start = start
+    self.baseline_min = baseline_min
+    self.baseline_max = baseline_max
 
 class Path( object ) : 
   def __init__( self, pos_list ) : 
@@ -81,6 +91,7 @@ class Model( object ) :
     self.rules  = []
     self.consts = []
     self.metrics= []
+    self.baseline_population = []
     logging.info( "Model inititalized" ) 
 
   def setStart( self, p ) : 
