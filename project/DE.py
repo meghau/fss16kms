@@ -28,15 +28,27 @@ class GAThread(Thread) :
 
   def __init__( self,
     m, 
-    initPaths=[],
+    initPath=[],
   ) : 
     super(GAThread, self).__init__( target=self ) 
     self.model    = m
     self.ret      = None 
-    self.ip       = initPaths
+    self.ip       = initPath[:]
 
   def __call__( self ) : 
-    pop = GA(m, self.ip, mutator=Mutator(), selector=selector, gens=10, popSize=25, render=False ) 
+
+    adjLst = m.getWaypoints( coverage=0.02, renderNetwork=False ) 
+    paths = m.generatePaths( 20, adjLst, maxLen=25, showPaths=False )
+
+    pop = GA(
+       m, 
+       self.ip + paths, 
+       mutator=Mutator(), 
+       selector=selector, 
+       gens=3, 
+       popSize=15, 
+       render=False 
+    ) 
     self.ret = pop
 
 
@@ -52,20 +64,22 @@ if __name__ == '__main__' :
   logging.basicConfig( **logArgs) 
   logging.info( "Logging init parameters : " + str( logArgs ) ) 
 
-  m = Model.example(2)
-  m.renderMap( 6, showGrid=False ) 
+  m = Model.example(1)
+  m.renderMap( 4, showGrid=False ) 
 
-  adjLst = m.getWaypoints( coverage=0.25, renderNetwork=False ) 
+  adjLst = m.getWaypoints( coverage=0.02, renderNetwork=False ) 
   paths = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False )
 
-  for _ in range(5) : 
+  for _ in range(10) : 
 
-    newPaths = []
-    for _ in xrange(10) :
-      newPaths +=  GA(m, paths, mutator=Mutator(), selector=selector, gens=10, popSize=25, render=False) 
+    t = [ GAThread( m, initPath=paths ) for _ in xrange(3) ]
+    [ x.start() for x in t ] 
+    [ x.join()  for x in t ] 
 
+    for x in t : 
+      newPaths = x.ret 
 
-    paths = selector( m, newPaths, 25 ) 
+    paths = selector( m, newPaths, 20 ) 
     m.renderPopulation( paths ) 
 
   while ( 1) : pass

@@ -31,7 +31,7 @@ class Mutator:
 
     new = []
     if random() < self.crossover_rate and len(mom) > 3 and len(dad) > 3 : 
-       m_index = randrange( 1, len(mom) + 1 ) 
+       m_index = randrange( 2, len(mom) + 1 ) 
        d_index = randrange( len(dad) )
        new = mom[:m_index] + dad[d_index:] 
     else :
@@ -43,11 +43,11 @@ class Mutator:
                  ) ) 
 
     while random() < self.join_rate and len( new ) > 3 : 
-      idx = randint( 0,len(new) - 1 )
+      idx = randint( 2,len(new) - 1 )
       del new[idx]
 
     while random() < self.move_rate:
-      idx = randint( 0, len(new) - 1 )
+      idx = randint( 2, len(new) - 1 )
       new[idx] = ( 
          new[idx][0] + randint( -self.step_size_x, self.step_size_x ) ,
          new[idx][1] + randint( -self.step_size_y, self.step_size_y ) 
@@ -95,6 +95,9 @@ def GA( m,
      render=True
    ):
 
+  for i in initial_population : 
+    logging.info(i.data ) 
+
   if mutator is None:
     mutator = Mutator()
 
@@ -135,7 +138,7 @@ def GA( m,
     if render : 
       m.renderPopulation( population )
 
-  return population
+  return population[:]
  
 
 if __name__ == '__main__' : 
@@ -150,9 +153,9 @@ if __name__ == '__main__' :
   logging.basicConfig( **logArgs) 
   logging.info( "Logging init parameters : " + str( logArgs ) ) 
 
-  m = Model.example(2)
+  m = Model.example(1)
   m.renderMap( 4, showGrid=False ) 
-  adjLst = m.getWaypoints( coverage=0.2, renderNetwork=False ) 
+  adjLst = m.getWaypoints( coverage=0.03, renderNetwork=False ) 
   pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False ) 
 
-  GA( m, pop, mutator=Mutator(), selector=Selector(), gens=10, popSize=25, render=False ) 
+  GA( m, pop, mutator=Mutator(), selector=Selector(), gens=10, popSize=10, render=True ) 

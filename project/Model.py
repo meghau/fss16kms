@@ -62,9 +62,6 @@ class Model( object ) :
       for c in xrange( self.width ) :
         yield ((r,c), self.map[r][c] )
     
- # def __getitem__( self, x ) :
- #   return self.map[x[0]][x[1]]
-
   def __setitem__( self, x, y ):
     assert isinstance( x, tuple ), "model must be reference using a 2D point tuple of (row, col)"
     self.map[x[0]][x[1]] = y
@@ -153,16 +150,16 @@ class Model( object ) :
   def newPath( self, p_list ) :
 
     path  = Path( p_list )
-    #upnts = set()
-    #pnts  = 0 
+    upnts = set()
+    pnts  = 0 
 
     path.score = { x.name : x.start for x in self.objs }
 
     try : 
       for p in path.walk() : 
 
-        #pnts += 1
-        #upnts.add( p ) 
+        pnts += 1
+        upnts.add( p ) 
 
         if self.map[p[0]][p[1]] == 0 :
           path.invalid = True 
@@ -181,7 +178,7 @@ class Model( object ) :
       path.invalid = True
       return path
 
-    #path.score["exploration"] = float( len(upnts)) / float(pnts) 
+    path.score["exploration"] = float( len(upnts)) / float(pnts) 
     path.invalid = path.invalid or any([ not c( path.score ) for c in self.consts ])
     return path
 
@@ -384,9 +381,8 @@ class Model( object ) :
 
       m.addObjective( Objective( "dStart", 0, 0, maxV, better=gt))
       m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
-
       m.addObjective( Objective( "health", 1000, 0, 1000, better=gt))
-      m.addObjective( Objective( "steps",  0,    0, maxV, better=gt)) 
+      m.addObjective( Objective( "steps",  0,    0, maxV, better=lt)) 
       m.addObjective( Objective( "gold",   15,   0, maxV, better=gt)) 
       m.addObjective( Objective( "goal",   0,    0,    1, better=gt)) 
       m.addObjective( Objective( "alive",  1,    0,    1, better=gt)) 
@@ -437,11 +433,10 @@ class Model( object ) :
       """
       maxV = 100000000000000000
 
-      m.addObjective( Objective( "dStart", 0, 0, maxV, better=gt))
-     # m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
-
+      m.addObjective( Objective( "dStart", 0, 0, maxV,    better=gt))
+      m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
       m.addObjective( Objective( "health", 1000, 0, 1000, better=gt))
-      m.addObjective( Objective( "steps",  0,    0, maxV, better=gt)) 
+      m.addObjective( Objective( "steps",  0,    0, maxV, better=lt)) 
       m.addObjective( Objective( "gold",   15,   0, maxV, better=gt)) 
       m.addObjective( Objective( "goal",   0,    0,    1, better=gt)) 
       m.addObjective( Objective( "alive",  1,    0,    1, better=gt)) 
