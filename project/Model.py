@@ -60,13 +60,10 @@ class Model( object ) :
   def __iter__( self ) :
     for r in xrange( self.height ) :
       for c in xrange( self.width ) :
-        yield ((r,c), self[(r,c)] )
+        yield ((r,c), self.map[r][c] )
     
-  def __getitem__( self, x ) :
-    if isinstance( x, tuple ) :
-      return self.map[x[0]][x[1]]
-    else :
-      return self.map[x]
+ # def __getitem__( self, x ) :
+ #   return self.map[x[0]][x[1]]
 
   def __setitem__( self, x, y ):
     assert isinstance( x, tuple ), "model must be reference using a 2D point tuple of (row, col)"
@@ -156,34 +153,35 @@ class Model( object ) :
   def newPath( self, p_list ) :
 
     path  = Path( p_list )
-    upnts = set()
-    pnts  = 0 
+    #upnts = set()
+    #pnts  = 0 
 
     path.score = { x.name : x.start for x in self.objs }
 
-    for p in path.walk() : 
+    try : 
+      for p in path.walk() : 
 
-      pnts += 1
-      upnts.add( p ) 
+        #pnts += 1
+        #upnts.add( p ) 
 
-      if p[0] >= self.height or p[0] < 0 or p[1] >= self.width or p[1] < 0:
-        path.invalid = True
-        return path
-    
-    
-      if self[p] == 0 :
-        path.invalid = True 
-        return path
+        if self.map[p[0]][p[1]] == 0 :
+          path.invalid = True 
+          return path
 
-      [ r( path.score, p, self[p] ) for r in self.rules ] 
+        [ r( path.score, p, self.map[p[0]][p[1]] ) for r in self.rules ] 
 
       for o in self.objs : 
         path.score[o.name] = min(max( path.score[o.name], o.min ), o.max)
 
-    for met in self.metrics : 
-      met.score( self, path.score, path ) 
+      for met in self.metrics : 
+        met.score( self, path.score, path ) 
 
-    path.score["exploration"] = float( len(upnts)) / float(pnts) 
+    except:
+      logging.info("EXCEPT")
+      path.invalid = True
+      return path
+
+    #path.score["exploration"] = float( len(upnts)) / float(pnts) 
     path.invalid = path.invalid or any([ not c( path.score ) for c in self.consts ])
     return path
 
@@ -209,10 +207,10 @@ class Model( object ) :
 
       newpoint = givenpoints.pop() if givenpoints else (randrange(self.height-1), randrange(self.width-1))
       
-      if( self[newpoint] == 0 ): continue
+      if( self.map[newpoint[0]][newpoint[1]] == 0 ): continue
 
       for waypoint in list( waypoints ) :
-        walls = len([1 for p in bresenhams( waypoint, newpoint ) if self[p] == 0 ])
+        walls = len([1 for p in bresenhams( waypoint, newpoint ) if self.map[p[0]][p[1]] == 0 ])
         if walls == 0:
           adjLst[waypoint].append(newpoint)
           adjLst[newpoint].append(waypoint)
@@ -277,6 +275,8 @@ class Model( object ) :
           weights[npos] += 1
 
       path = self.newPath( path )  
+
+      logging.info( path ) 
      
       if showPaths : 
         self.delete( tag="remove" )
@@ -394,17 +394,31 @@ class Model( object ) :
       """
       Set rules
       """
-      m.addRule( Rule.add( "steps", 1 ) )  
+      def ruleSet( score, point, value ) : 
+        score["steps"] += 1
+        score["health"] -= 1
+        if value == 6 : score["gold"] += 10
+        if value == 3 : score["goal"] = 1
+        if value == 3 : score["gold"] += 100
+        if value == 3 : score["health"] += 50
+        if value == 8 : score["steps"] += 5
+        if value == 5 : score["health"] -= 5
+        if value == 7 : score["health"] += 10
+        if score["health"] <= 0 : score["alive"] = 0
+        if score["goal"] == 1 : return "break"
+        
+      m.addRule( ruleSet )    
+      #m.addRule( Rule.add( "steps", 1 ) )  
       #m.addRule( Rule.add( "health", -1 ) ) 
-      m.addRule( Rule.addIf( 6, "gold", 10 ) )
-      m.addRule( Rule.setIf( 3, "goal", 1 ) ) 
-      m.addRule( Rule.addIf( 3, "gold", 100 ) )
-      m.addRule( Rule.addIf( 3, "health", 50 ) )
-      m.addRule( Rule.addIf( 8, "steps", 4) ) 
-      m.addRule( Rule.addIf( 5, "health", -5 ) )
-      m.addRule( Rule.addIf( 7, "health", 10 ) ) 
-      m.addRule( Rule.setIfValue( "health", lt, 1, "alive", 0 ) ) 
-      m.addRule( Rule.breakIf( "goal", eq, 1 ) ) 
+      #m.addRule( Rule.addIf( 6, "gold", 10 ) )
+      #m.addRule( Rule.setIf( 3, "goal", 1 ) ) 
+      #m.addRule( Rule.addIf( 3, "gold", 100 ) )
+      #m.addRule( Rule.addIf( 3, "health", 50 ) )
+      #m.addRule( Rule.addIf( 8, "steps", 4) ) 
+      #m.addRule( Rule.addIf( 5, "health", -5 ) )
+      #m.addRule( Rule.addIf( 7, "health", 10 ) ) 
+      #m.addRule( Rule.setIfValue( "health", lt, 1, "alive", 0 ) ) 
+      #m.addRule( Rule.breakIf( "goal", eq, 1 ) ) 
 
       m.addConstraint( Constraint( "alive", eq, 1 ) )
 
@@ -424,7 +438,7 @@ class Model( object ) :
       maxV = 100000000000000000
 
       m.addObjective( Objective( "dStart", 0, 0, maxV, better=gt))
-      m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
+     # m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
 
       m.addObjective( Objective( "health", 1000, 0, 1000, better=gt))
       m.addObjective( Objective( "steps",  0,    0, maxV, better=gt)) 
@@ -435,17 +449,32 @@ class Model( object ) :
       """
       Set rules
       """
-      m.addRule( Rule.add( "steps", 1 ) )  
+
+      def ruleSet( score, point, value ) : 
+        score["steps"] += 1
+        score["health"] -= 1
+        if value == 6 : score["gold"] += 10
+        if value == 3 : score["goal"] = 1
+        if value == 3 : score["gold"] += 100
+        if value == 3 : score["health"] += 50
+        if value == 8 : score["steps"] += 5
+        if value == 5 : score["health"] -= 5
+        if value == 7 : score["health"] += 10
+        if score["health"] <= 0 : score["alive"] = 0
+        if score["goal"] == 1 : return "break"
+        
+      m.addRule( ruleSet )    
+      #m.addRule( Rule.add( "steps", 1 ) )  
       #m.addRule( Rule.add( "health", -1 ) ) 
-      m.addRule( Rule.addIf( 6, "gold", 10 ) )
-      m.addRule( Rule.setIf( 3, "goal", 1 ) ) 
-      m.addRule( Rule.addIf( 3, "gold", 100 ) )
-      m.addRule( Rule.addIf( 3, "health", 50 ) )
-      m.addRule( Rule.addIf( 8, "steps", 4) ) 
-      m.addRule( Rule.addIf( 5, "health", -5 ) )
-      m.addRule( Rule.addIf( 7, "health", 10 ) ) 
-      m.addRule( Rule.setIfValue( "health", lt, 1, "alive", 0 ) ) 
-      m.addRule( Rule.breakIf( "goal", eq, 1 ) ) 
+      #m.addRule( Rule.addIf( 6, "gold", 10 ) )
+      #m.addRule( Rule.setIf( 3, "goal", 1 ) ) 
+      #m.addRule( Rule.addIf( 3, "gold", 100 ) )
+      #m.addRule( Rule.addIf( 3, "health", 50 ) )
+      #m.addRule( Rule.addIf( 8, "steps", 4) ) 
+      #m.addRule( Rule.addIf( 5, "health", -5 ) )
+      #m.addRule( Rule.addIf( 7, "health", 10 ) ) 
+      #m.addRule( Rule.setIfValue( "health", lt, 1, "alive", 0 ) ) 
+      #m.addRule( Rule.breakIf( "goal", eq, 1 ) ) 
 
       m.addConstraint( Constraint( "alive", eq, 1 ) )
 

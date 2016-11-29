@@ -152,7 +152,7 @@ if __name__ == '__main__' :
 
   m = Model.example(2)
   m.renderMap( 4, showGrid=False ) 
-  adjLst = m.getWaypoints( coverage=0.10, renderNetwork=False ) 
+  adjLst = m.getWaypoints( coverage=0.2, renderNetwork=False ) 
   pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False ) 
 
-  GA( m, pop, mutator=Mutator(), selector=Selector(), gens=10, popSize=25, render=True ) 
+  GA( m, pop, mutator=Mutator(), selector=Selector(), gens=10, popSize=25, render=False ) 
