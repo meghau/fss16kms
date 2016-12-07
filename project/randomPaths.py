@@ -291,20 +291,29 @@ if __name__ == '__main__' :
 
   m = Model.example(1)
   #set_baseline(m,3)
-  m.renderMap( 4, showGrid=False ) 
+  #m.renderMap( 4, showGrid=False ) 
 
-  sel  = Selector()
-  best = []
-  for _ in xrange( 1 ) :
-    adjLst = m.getWaypoints( coverage=0.05, renderNetwork=True ) 
-    pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=True ) 
-    best   = sel( m, pop + best, 50 ) 
+  gold = []
+  step = []
+  goal = []
+
+  for stp in xrange( 50 ) : 
+    print( stp ) 
+    sel  = Selector()
+    best = []
+    for _ in xrange( 3 ) :
+      adjLst = m.getWaypoints( coverage=0.03, renderNetwork=False ) 
+      pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False ) 
+      best   = sel( m, pop + best, 50 ) 
 
 
-  print( *[ x.score.values() for x in best], sep="\n" ) 
+    gold.append( sum([x.score["gold"] for x in best ]) / len( pop ) ) 
+    step.append( sum([x.score["steps"] for x in best ]) / len( pop ) ) 
+    goal.append( sum([x.score["goal"] for x in best ]) / len( pop ) ) 
 
-  print( [x.score["gold"] for x in best ] ) 
-  print( [x.score["steps"] for x in best ] ) 
-  print( [x.score["goal"] for x in best ] ) 
+
+  print( gold ) 
+  print( step ) 
+  print( goal ) 
 
 

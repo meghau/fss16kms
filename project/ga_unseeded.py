@@ -288,17 +288,29 @@ if __name__ == '__main__' :
 
   m = Model.example(1)
   #set_baseline(m,3)
-  m.renderMap( 4, showGrid=False ) 
-  adjLst = m.getWaypoints( coverage=0.05, renderNetwork=False ) 
-  pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=True, weightNodes=False ) 
+  #m.renderMap( 4, showGrid=False ) 
 
-  pop = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.bdom), gens=20, popSize=50, render=True, calc_igd=False, graph_objectives=False ) 
+  gold = []
+  step = []
+  goal = []
 
-  print( *[ x.score.values() for x in pop], sep="\n" ) 
+  for _ in xrange( 50 ) : 
+    adjLst = m.getWaypoints( coverage=0.03, renderNetwork=False ) 
+    pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False, weightNodes=False ) 
 
-  print( [ x.score["gold"] for x in pop] ) 
-  print( [ x.score["steps"] for x in pop] ) 
-  print( [ x.score["goal"] for x in pop] ) 
+    pop    = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.bdom), 
+                 gens=20, popSize=50, render=False, 
+                 calc_igd=False, graph_objectives=False ) 
+
+
+    gold.append( sum([ x.score["gold"] for x in pop]) / len(pop))
+    step.append( sum([ x.score["steps"] for x in pop]) / len(pop))
+    goal.append( sum([ x.score["goal"] for x in pop]) / len(pop))
+
+  print( gold ) 
+  print( step ) 
+  print( goal ) 
+
 
 
 
