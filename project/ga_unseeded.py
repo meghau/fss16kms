@@ -286,26 +286,19 @@ if __name__ == '__main__' :
   logging.basicConfig( **logArgs) 
   logging.info( "Logging init parameters : " + str( logArgs ) ) 
 
-  gold = []
-  step = []
-  goal = []
- 
-  for _ in xrange( 5 ) : 
-    m = Model.example(1)
-    #set_baseline(m,3)
-    #m.renderMap( 4, showGrid=False ) 
-    adjLst = m.getWaypoints( coverage=0.05, renderNetwork=False ) 
-    pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False ) 
+  m = Model.example(1)
+  #set_baseline(m,3)
+  m.renderMap( 4, showGrid=False ) 
+  adjLst = m.getWaypoints( coverage=0.05, renderNetwork=False ) 
+  pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=True, weightNodes=False ) 
 
-    pop    = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.bdom), gens=20, popSize=50, render=False, calc_igd=False, graph_objectives=False ) 
+  pop = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.bdom), gens=20, popSize=50, render=True, calc_igd=False, graph_objectives=False ) 
 
-    gold += [ x.score["gold"] for x in pop] 
-    step += [ x.score["steps"] for x in pop] 
-    goal += [ x.score["goal"] for x in pop] 
+  print( *[ x.score.values() for x in pop], sep="\n" ) 
 
+  print( [ x.score["gold"] for x in pop] ) 
+  print( [ x.score["steps"] for x in pop] ) 
+  print( [ x.score["goal"] for x in pop] ) 
 
-  print( gold ) 
-  print( step ) 
-  print( goal ) 
 
 

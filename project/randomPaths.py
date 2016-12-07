@@ -1,6 +1,9 @@
 #!python
 from __future__ import division, print_function
+import matplotlib.pyplot as plt;
+import numpy as np
 import datetime
+
 import logging
 import sys, math
 from threading import Thread
@@ -286,26 +289,22 @@ if __name__ == '__main__' :
   logging.basicConfig( **logArgs) 
   logging.info( "Logging init parameters : " + str( logArgs ) ) 
 
-  gold = []
-  step = []
-  goal = []
- 
-  for _ in xrange( 5 ) : 
-    m = Model.example(1)
-    #set_baseline(m,3)
-    #m.renderMap( 4, showGrid=False ) 
-    adjLst = m.getWaypoints( coverage=0.05, renderNetwork=False ) 
-    pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False ) 
+  m = Model.example(1)
+  #set_baseline(m,3)
+  m.renderMap( 4, showGrid=False ) 
 
-    pop    = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.bdom), gens=20, popSize=50, render=False, calc_igd=False, graph_objectives=False ) 
-
-    gold += [ x.score["gold"] for x in pop] 
-    step += [ x.score["steps"] for x in pop] 
-    goal += [ x.score["goal"] for x in pop] 
+  sel  = Selector()
+  best = []
+  for _ in xrange( 1 ) :
+    adjLst = m.getWaypoints( coverage=0.05, renderNetwork=True ) 
+    pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=True ) 
+    best   = sel( m, pop + best, 50 ) 
 
 
-  print( gold ) 
-  print( step ) 
-  print( goal ) 
+  print( *[ x.score.values() for x in best], sep="\n" ) 
+
+  print( [x.score["gold"] for x in best ] ) 
+  print( [x.score["steps"] for x in best ] ) 
+  print( [x.score["goal"] for x in best ] ) 
 
 

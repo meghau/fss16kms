@@ -1,6 +1,6 @@
 from __future__ import division
 import logging
-from random      import randrange, random, uniform
+from random      import randrange, random, uniform, choice
 from time        import sleep
 from bresenhams  import bresenhams
 from operator    import lt, gt, eq
@@ -217,11 +217,15 @@ class Model( object ) :
       
       if( self.map[newpoint[0]][newpoint[1]] == 0 ): continue
 
+      limit = 6
       for waypoint in list( waypoints ) :
         walls = len([1 for p in bresenhams( waypoint, newpoint ) if self.map[p[0]][p[1]] == 0 ])
         if walls == 0:
+          limit -= 1
           adjLst[waypoint].append(newpoint)
           adjLst[newpoint].append(waypoint)
+          if limit == 0 :
+            break
 
       waypoints.add( newpoint )
 
@@ -229,7 +233,7 @@ class Model( object ) :
         self.draw_oval( newpoint, grad )
         for dest in adjLst[ newpoint ] :
           self.draw_line( newpoint, dest, grad )
-        if len(waypoints) % 75 == 0 : 
+        if len(waypoints) % 150 == 0 : 
           self.update()
  
       if renderCoverage :
@@ -243,10 +247,7 @@ class Model( object ) :
     logging.info( "Waypoints : %d, Coverage %f%%", len(waypoints), cur_coverage * 100 )
     return adjLst
 
-  def simpleSeedPaths( self, n ) :
-    return [ self.newPath( [self.start] ) for _ in xrange( n ) ]
-
-  def generatePaths( self, n, adjLst, maxLen=10, showPaths=False ) : 
+  def generatePaths( self, n, adjLst, maxLen=10, showPaths=False, weightNodes=True ) : 
     """
     Function for generating a set of random paths 
     My first attemp chose any of a random set of neighbors
@@ -275,7 +276,10 @@ class Model( object ) :
 
       path = [self.start]
       while len( path ) < maxLen : 
-        npos = weighted_choice( adjLst[path[-1]], weights )
+        if weightNodes : 
+           npos = weighted_choice( adjLst[path[-1]], weights )
+        else : 
+           npos = choice( adjLst[path[-1]] ) 
         path.append( npos ) 
         if( self.map[npos[0]][npos[1]] == 3 ):
           break
@@ -299,6 +303,8 @@ class Model( object ) :
       else : 
         misses += 1
 
+    if showPaths : 
+      self.delete( tag="remove" )
     return paths
 
     
@@ -357,12 +363,12 @@ class Model( object ) :
     for i, p in enumerate(population[:10]) :
       self.reset()
       self.draw_path( p, grad )
-      self.draw_text( 0, "score=\n%s"%("\n".join(["%s:%s"%(str(k),str(v)) for k, v in p.score.iteritems()])), "black")
+      self.draw_text( 3, "score=\n%s"%("\n".join(["%s:%s"%(str(k),str(v)) for k, v in p.score.iteritems()])), "black")
       self.update()
 
   def draw_text( self, pos, s, color ) :
     c = color() if callable( color ) else color
-    self.canvas.create_text( 50, (self.scale*(self.height+4)) + (30*pos), text=s, tag="overlay", fill=c )
+    self.canvas.create_text( 100, (self.scale*(self.height+4)) + (30*pos), text=s, tag="overlay", fill=c )
 
   def draw_path( self, path, color, drawWaypoints=True, tag="overlay" ) :
 
@@ -487,6 +493,61 @@ class Model( object ) :
       m.addMetric( DistanceToPoint( "dStart", m.start ) ) 
       
       return m
+    if k == 3 : 
+      m = Model()
+      m.loadMap( "./maps/sample2.png" )
+      m.setStart( (1,1) ) 
+      m.findPOI( lambda p,m : m == 3 )
+      
+      """
+      Set objectives 
+      """
+      maxV = 100000000000000000
+
+      m.addObjective( Objective( "dStart", 0, 0, maxV,    better=gt))
+      m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))
+      m.addObjective( Objective( "health", 1000, 0, 1000, better=gt))
+      m.addObjective( Objective( "steps",  0,    0, maxV, better=lt)) 
+      m.addObjective( Objective( "gold",   15,   0, maxV, better=gt)) 
+      m.addObjective( Objective( "goal",   0,    0,    1, better=gt)) 
+      m.addObjective( Objective( "alive",  1,    0,    1, better=gt)) 
+      
+      """
+      Set rules
+      """
+
+      def ruleSet( score, point, value ) : 
+        score["steps"] += 1
+        score["health"] -= 1
+        if value == 6 : score["gold"] += 10
+        if value == 3 : score["goal"] = 1
+        if value == 3 : score["gold"] += 100
+        if value == 3 : score["health"] += 50
+        if value == 8 : score["steps"] += 5
+        if value == 5 : score["health"] -= 5
+        if value == 7 : score["health"] += 10
+        if score["health"] <= 0 : score["alive"] = 0
+        if score["goal"] == 1 : return "break"
+        
+      m.addRule( ruleSet )    
+      #m.addRule( Rule.add( "steps", 1 ) )  
+      #m.addRule( Rule.add( "health", -1 ) ) 
+      #m.addRule( Rule.addIf( 6, "gold", 10 ) )
+      #m.addRule( Rule.setIf( 3, "goal", 1 ) ) 
+      #m.addRule( Rule.addIf( 3, "gold", 100 ) )
+      #m.addRule( Rule.addIf( 3, "health", 50 ) )
+      #m.addRule( Rule.addIf( 8, "steps", 4) ) 
+      #m.addRule( Rule.addIf( 5, "health", -5 ) )
+      #m.addRule( Rule.addIf( 7, "health", 10 ) ) 
+      #m.addRule( Rule.setIfValue( "health", lt, 1, "alive", 0 ) ) 
+      #m.addRule( Rule.breakIf( "goal", eq, 1 ) ) 
+
+      m.addConstraint( Constraint( "alive", eq, 1 ) )
+
+      m.addMetric( DistanceToPoint( "dStart", m.start ) ) 
+      
+      return m
+      
 
 
 def weighted_choice(c, weights ):
