@@ -394,7 +394,7 @@ class Model( object ) :
       """
       Set objectives 
       """
-      maxV = 100000000000000000
+      maxV = 100000
 
       m.addObjective( Objective( "dStart", 0, 0, maxV, better=gt))
       m.addObjective( Objective( "exploration", 0, 0, 1,  better=gt))

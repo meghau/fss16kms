@@ -92,7 +92,7 @@ class Selector():
     def expLoss(w,x1,y1,n):
       return -1*math.e**( w*(x1 - y1) / n )
     def norm(obj,x):
-      tmp= (x - obj.baseline_min) / (obj.baseline_max - obj.baseline_min + 10**-32)
+      tmp= (x - obj.min) / (obj.max - obj.min + 10**-32)
       if tmp > 1: 
         return 1
       elif tmp < 0: 
@@ -298,7 +298,7 @@ if __name__ == '__main__' :
     adjLst = m.getWaypoints( coverage=0.03, renderNetwork=False ) 
     pop    = m.generatePaths( 50, adjLst, maxLen=25, showPaths=False, weightNodes=False ) 
 
-    pop    = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.bdom), 
+    pop    = GA( m, pop, mutator=Mutator(), selector=Selector(Selector.cdom), 
                  gens=20, popSize=50, render=False, 
                  calc_igd=False, graph_objectives=False ) 
 
