@@ -21,8 +21,8 @@ class Mutator:
     split_rate     =0.1,
     join_rate      =0.3,
     move_rate      =0.1, 
-    step_size_x    =5, 
-    step_size_y    =5,
+    step_size_x    =50, 
+    step_size_y    =50,
   ) :
     self.crossover_rate = crossover_rate
     self.extend_rate    = extend_rate 
